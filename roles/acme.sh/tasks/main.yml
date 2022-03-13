@@ -17,6 +17,14 @@
     ssh_key_bits: 384
   ignore_errors: true
 
+- name: nopassword for user systemctl command
+  lineinfile:
+    dest: /etc/sudoers.d/{{ USER }}
+    create: yes
+    regexp: '^{{ USER }} ALL\='
+    line: "{{ USER }} ALL=(ALL:ALL) NOPASSWD:/usr/bin/systemctl"
+    validate: 'visudo -cf %s'
+
 - name: create bin directory in {{ USER }} home
   file:
     path: '/home/{{ USER }}/{{ item }}'
@@ -27,6 +35,7 @@
   with_items:
     - bin
     - .acme.sh
+    - letsencrypt
 
 - name: download acme.sh
   get_url:
@@ -36,6 +45,14 @@
     group: "{{ USER }}"
     mode: 0755
 
+- name: add env to bashrc
+  blockinfile:
+    path: "/home/{{ USER }}/.bashrc"
+    create: yes
+    block: |
+      export LE_WORKING_DIR="/home/runner/.acme.sh"
+      alias acme.sh="/home/runner/.acme.sh/acme.sh"
+
 - name: create link to script
   file:
     src: "/home/{{ USER }}/.acme.sh/acme.sh"
@@ -44,14 +61,32 @@
     force: yes
     mode: 0750
 
+- name: renew script create
+  template:
+    src: renew.j2
+    dest: "/home/{{ USER }}/bin/renew.sh"
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: 0775
+
+- name: add cron job
+  cron:
+    name: renew certificates
+    minute: "34"
+    hour: "0"
+    job: "/home/runner/bin/renew.sh"
+    user: "{{ USER }}"
+
 - name: create cert directorys
   file:
     path: '{{ item }}'
     state: directory
-    mode: 0750
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: 0755
   with_items:
-    - /etc/nginx/certs/
-    - /etc/apache2/certs/
+    - /etc/nginx/certs/{{ FQDN }}
+    - /etc/apache2/certs/{{ FQDN }}
 
 - name: create Diffie-Helman key
   openssl_dhparam:

@@ -6,6 +6,10 @@
     prompt: "Enter user name"
     private: no
     default: runner
+  - name: "FQDN"
+    prompt: 'Domain name'
+    private: no
+    default: blossapp.com
   roles:
     - role: upgrade-dist
     - role: acme.sh

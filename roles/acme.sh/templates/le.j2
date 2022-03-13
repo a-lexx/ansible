@@ -1,0 +1,8 @@
+{% block head %}
+Alias /.well-known/acme-challenge/ "/home/{{ USER }}/letsencrypt/.well-known/acme-challenge/"
+<Directory "/home/{{ USER }}/letsencrypt/">
+    AllowOverride None
+    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
+    Require method GET POST OPTIONS
+</Directory>
+{% endblock %}

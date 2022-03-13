@@ -1,4 +1,11 @@
 ---
+- name: restore /etc/apt/sources.list
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+    mode: 0644
+    backup: yes
+
 - name: upgrade system
   apt:
     upgrade: dist
