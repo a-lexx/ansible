@@ -1,0 +1,110 @@
+---
+- hosts: all
+  remote_user: root
+  vars_prompt:
+  - name: "USER"
+    prompt: "Enter user name"
+    private: no
+    default: runner
+  tasks:
+
+  - name: install curl and openssl packages
+    apt:
+      pkg: ['curl', 'openssl']
+      state: latest
+      update_cache: true
+
+  - name: create user {{ USER }}
+    user:
+      name: "{{ USER }}"
+      shell: /bin/bash
+      create_home: yes
+      home: "/home/{{ USER }}"
+      generate_ssh_key: yes
+      ssh_key_type: ecdsa
+      ssh_key_bits: 384
+    ignore_errors: true
+
+  - name: create bin directory in {{ USER }} home
+    file:
+      path: '/home/{{ USER }}/{{ item }}'
+      state: directory
+      owner: "{{ USER }}"
+      group: "{{ USER }}"
+      mode: 0755
+    with_items:
+      - bin
+      - .acme.sh
+
+  - name: download acme.sh
+    get_url:
+      url: https://raw.githubusercontent.com/Neilpang/acme.sh/master/acme.sh
+      dest: "/home/{{ USER }}/.acme.sh/"
+      owner: "{{ USER }}"
+      group: "{{ USER }}"
+      mode: 0755
+
+  - name: create link to script
+    file:
+      src: "/home/{{ USER }}/.acme.sh/acme.sh"
+      dest: "/home/{{ USER }}/bin/acme.sh"
+      state: link
+      force: yes
+      mode: 0750
+
+  - name: create cert directorys
+    file:
+      path: '{{ item }}'
+      state: directory
+      mode: 0750
+    with_items:
+      - /etc/nginx/certs/
+      - /etc/apache2/certs/
+
+  - name: create Diffie-Helman key
+    openssl_dhparam:
+      path: /etc/nginx/certs/dhparam.pem
+      size: 2048
+
+  - name: create link to script
+    file:
+      src: /etc/nginx/certs/dhparam.pem
+      dest: /etc/apache2/certs/dhparam.pem
+      state: link
+      mode: 0750
+
+  - name: acme in nginx
+    template:
+      src: acme.j2
+      dest: /etc/nginx/le.conf
+      mode: 0600
+    notify:
+      - reload nginx
+
+  - name: acme in apache2
+    template:
+      src: le.j2
+      dest: /etc/apache2/conf-available/le.conf
+      mode: 0600
+
+  - name: enable le.conf
+    file:
+      src: ../conf-available/le.conf
+      dest: /etc/apache2/conf-enabled/le.conf
+      state: link
+      mode: 0750
+    notify:
+      - reload apache
+
+  handlers:
+  - name: reload apache
+    service:
+      name: apache2
+      state: reloaded
+    ignore_errors: true
+
+  - name: reload nginx
+    service:
+      name: nginx
+      state: reloaded
+    ignore_errors: true
