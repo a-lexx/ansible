@@ -1,0 +1,10 @@
+---
+- include: upgrade_system.yml
+- hosts: all
+  remote_user: root
+  vars_prompt:
+  - name: "FQDN"
+    prompt: 'Domain name:'
+    private: no
+  roles:
+  - role: postfix
