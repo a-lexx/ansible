@@ -1,8 +1,8 @@
 {% block head %}
 #!/usr/bin/env bash
 
-~/bin/acme.sh --issue -d {{ FQDN }} -d www.{{ FQDN }} -w ~/letsencrypt &&
-#~/bin/acme.sh --issue --dns dns_cf -d {{ FQDN }} -d '*.{{ FQDN }}' &&
+~/bin/acme.sh --issue -d {{ FQDN }} -d www.{{ FQDN }} -w ~/letsencrypt && \
+#~/bin/acme.sh --issue --dns dns_cf -d {{ FQDN }} -d '*.{{ FQDN }}' && \
 ~/bin/acme.sh --install-cert -d {{ FQDN }} \
         --cert-file      /etc/apache2/certs/{{ FQDN }}/cert.pem  \
         --key-file       /etc/apache2/certs/{{ FQDN }}/key.pem  \
