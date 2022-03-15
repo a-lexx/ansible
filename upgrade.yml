@@ -1,4 +1,6 @@
 ---
 - hosts: all
   roles:
+    - role: root-config
     - role: upgrade-dist 
+
