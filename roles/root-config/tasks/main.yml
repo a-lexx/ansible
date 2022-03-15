@@ -1,0 +1,5 @@
+---
+# tasks file for upgrade-dist
+- include_tasks: debian.yml
+  when: ansible_distribution == 'Debian'
+  tags: package

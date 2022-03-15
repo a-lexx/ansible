@@ -1,0 +1,21 @@
+---
+- name: install packages
+  apt:
+    pkg: ['bash-completion', 'vim']
+    state: latest
+    update_cache: true
+
+- name: update bashrc
+  template:
+    src: bashrc.j2
+    dest: /root/.bashrc
+    mode: 0644
+    backup: yes
+
+- name: create vimrc
+  template:
+    src: vimrc.j2
+    dest: /root/.vimrc
+    mode: 0644
+    backup: yes
+
