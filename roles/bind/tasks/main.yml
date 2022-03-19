@@ -1,0 +1,10 @@
+---
+- name: configure dns server
+  include_tasks: dns.yml
+  tags: bind
+
+- name: deinstall apparmor
+  apt:
+    pkg: apparmor
+    state: absent
+

@@ -1,0 +1,50 @@
+{% block head %}
+$TTL 1h
+{% if FQDN is defined %}
+@ IN SOA {{ FQDN }}. root.{{ FQDN }}. (
+{% else %}
+@ IN SOA ns1 root (
+{% endif %}
+{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}01 ; serial
+1h         ; refresh (1 hour)
+15m        ; retry (15 minutes)
+2w         ; expire (2 weeks)
+20m        ; minimum (20 minutes)
+)
+{% if FQDN is defined %}
+@ IN NS {{ FQDN }}.
+{% else %}
+@ IN NS ns1
+{% endif %}
+@ IN NS ns2
+@ IN NS ns3
+@ IN MX 10 mail
+{% if ns1 is defined %}
+ns1 IN A {{ ns1 }}
+{% else %}
+ns1 IN A {{ ansible_default_ipv4.address }}
+{% endif %}
+{% if ns2 is defined %}
+ns2 IN A {{ ns2 }}
+{% else %}
+ns2 IN A {{ ansible_default_ipv4.address }}
+{% endif %}
+{% if ns3 is defined %}
+ns3 IN A {{ ns3 }}
+{% else %}
+ns3 IN A {{ ansible_default_ipv4.address }}
+{% endif %}
+{% if smtp is defined %}
+mail IN A {{ smtp }}
+{% else %}
+mail IN A {{ ansible_default_ipv4.address }}
+{% endif %}
+@ IN TXT "v=spf1 +a +mx ~all"
+{% if ns1 is defined %}
+@ IN A {{ ns1 }}
+* IN A {{ ns1 }}
+{% else %}
+@ IN A {{ ansible_default_ipv4.address }}
+* IN A {{ ansible_default_ipv4.address }}
+{% endif %}
+{% endblock %}

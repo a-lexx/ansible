@@ -1,0 +1,9 @@
+---
+- hosts: all
+  remote_user: root
+  vars_prompt:
+  - name: "FQDN"
+    prompt: 'Domain name'
+    private: no
+  roles:
+    - role: bind
