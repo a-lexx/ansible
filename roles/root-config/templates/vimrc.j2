@@ -1,4 +1,7 @@
 {% block head %}
+syntax enable
+colorscheme desert
+filetype plugin indent on
 set mouse=v
 set number
 set cursorline
@@ -14,12 +17,8 @@ set smartindent
 set autoindent
 set iminsert=0
 set imsearch=0
-set laststatus=2
-set statusline=%f%m%r%h%w\ %y\ enc:%{&enc}\ ff:%{&ff}\ fenc:%{&fenc}%=(ch:%3b\ hex:%2B)\ col:%2c\ line:%2l/%L\ [%2p%%]
-au BufRead /tmp/mutt-* set tw=72
-filetype plugin indent on
 set encoding=utf-8
 set nocompatible
-syntax enable
-colorscheme desert
+set laststatus=2
+set statusline=%f%m%r%h%w\ %y\ enc:%{&enc}\ ff:%{&ff}\ fenc:%{&fenc}%=(ch:%3b\ hex:%2B)\ col:%2c\ line:%2l/%L\ [%2p%%]
 {% endblock %}

@@ -1,6 +1,15 @@
 {% block head %}
 #!/usr/bin/env bash
 
+# set account env
+# export CF_Account_ID="XXXXXXXXXXZXX"
+# export CF_Token="XXXXXXXXXMXXX"
+# or
+# export CF_Key="XXXXXXXXXXXYX"
+# export CF_Email="user@example.com"
+
+~/bin/acme.sh --upgrade
+~/bin/acme.sh --set-default-ca --server letsencrypt
 ~/bin/acme.sh --issue -d {{ FQDN }} -d www.{{ FQDN }} -w ~/letsencrypt && \
 #~/bin/acme.sh --issue --dns dns_cf -d {{ FQDN }} -d '*.{{ FQDN }}' && \
 ~/bin/acme.sh --install-cert -d {{ FQDN }} \
