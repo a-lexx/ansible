@@ -1,5 +1,4 @@
 ---
-# tasks file for acme.sh
 - name: install packages
   apt:
     pkg: ['curl', 'openssl', 'screen', 'socat']
@@ -109,7 +108,9 @@
     group: "{{ USER }}"
     mode: 0755
   with_items:
+    - /etc/nginx/certs
     - /etc/nginx/certs/{{ FQDN }}
+    - /etc/apache2/certs
     - /etc/apache2/certs/{{ FQDN }}
 
 - name: create Diffie-Helman key
@@ -146,3 +147,4 @@
     dest: /etc/apache2/conf-enabled/le.conf
     state: link
     mode: 0750
+
