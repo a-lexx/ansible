@@ -6,12 +6,12 @@
 # PS1='${debian_chroot:+($debian_chroot)}\h:\w\$ '
 # umask 022
 
-# Enable completion
+# enable completion
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-# Enable command `ls' to be colorized:
+# enable command `ls' to be colorized:
 export LS_OPTIONS='--color=auto'
 
 # Aliases
@@ -24,20 +24,20 @@ alias grep='grep $LS_OPTIONS'
 alias uu='apt update && apt upgrade && apt clean'
 {% endif %}
 
-# Exports
+# exports
 export EDITOR=/usr/bin/vim
 export PAGER=/usr/bin/less
 export TERM=xterm
 export LANG=en_US.UTF-8
 export LESSCHARSET=UTF-8
 
-# History
+# history
 HISTCONTROL=ignoredups
 HISTCONTROL=ignorespace
 HISTCONTROL=erasedups
 shopt -s histappend
 PROMPT_COMMAND='history -a'
 
-# Custom PS1
-PS1='\[\e[0;33m\][\A]\[\e[1;31m\]\u@\[\e[0;32m\]\h:\[\e[1;34m\]\w\$\[\e[0m\] '
+# custom PS1
+PS1='\[\e[0;33m\][\A]\[\e[1;31m\]\u@\[\e[0;32m\]\H:\[\e[1;34m\]\w\$\[\e[0m\] '
 {% endblock %}

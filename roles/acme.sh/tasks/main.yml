@@ -1,8 +1,8 @@
 ---
 # tasks file for acme.sh
-- name: install curl and openssl packages
+- name: install packages
   apt:
-    pkg: ['curl', 'openssl']
+    pkg: ['curl', 'openssl', 'screen', 'socat']
     state: latest
     update_cache: true
 
@@ -16,6 +16,14 @@
     ssh_key_type: ecdsa
     ssh_key_bits: 384
   ignore_errors: true
+
+- name: create screenrc
+  template:
+    src: screenrc.j2
+    dest: "/home/{{ USER }}/.screenrc"
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: 0644
 
 - name: nopassword for user systemctl command
   lineinfile:
@@ -33,9 +41,10 @@
     group: "{{ USER }}"
     mode: 0755
   with_items:
-    - bin
     - .acme.sh
+    - bin
     - letsencrypt
+    - .log/screen/
 
 - name: download acme.sh
   get_url:
@@ -50,8 +59,23 @@
     path: "/home/{{ USER }}/.bashrc"
     create: yes
     block: |
+      # include bash completion
+      if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+          . /etc/bash_completion
+      fi
+      # set primary prompt variable
+      PS1='\[\e[1;36m\][\A]\[\e[1;34m\]\u@\[\e[1;33m\]\H:\[\e[1;36m\]\w\$\[\e[0m\] '
+      # exports
+      export EDITOR=/usr/bin/vim
+      export PAGER=/usr/bin/less
       export LE_WORKING_DIR="/home/runner/.acme.sh"
       alias acme.sh="/home/runner/.acme.sh/acme.sh"
+      # history
+      HISTCONTROL=ignoredups
+      HISTCONTROL=ignorespace
+      HISTCONTROL=erasedups
+      shopt -s histappend
+      PROMPT_COMMAND='history -a'
 
 - name: create link to script
   file:
