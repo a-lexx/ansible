@@ -1,0 +1,11 @@
+---
+- name: create repo MySQL file
+  template:
+    src: repo.j2
+    dest: "/etc/apt/sources.list.d/mysql.list"
+    mode: 0644
+
+- name: Add PGP key
+  apt_key:
+    keyserver: hkp://pgp.mit.edu:80
+    id: 467B942D3A79BD29
