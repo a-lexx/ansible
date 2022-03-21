@@ -133,6 +133,12 @@
   notify:
     - reload nginx
 
+- name: create virtual host
+  template:
+    src: vhost_apache.j2
+    dest: /etc/apache2/sites-available/{{ FQDN }}.conf
+    mode: 0600
+
 - name: acme in apache2
   template:
     src: le.j2
@@ -147,4 +153,10 @@
     dest: /etc/apache2/conf-enabled/le.conf
     state: link
     mode: 0750
+
+#- name: enable virtual host
+#  file:
+#    src: ../sites-available/{{ FQDN }}.conf
+#    dest: /etc/apache2/sites-enabled/{{ FQDN }}.conf
+#    mode: 0600
 
