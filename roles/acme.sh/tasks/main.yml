@@ -1,7 +1,7 @@
 ---
 - name: install packages
   apt:
-    pkg: ['curl', 'openssl', 'screen', 'socat']
+    pkg: ['curl', 'openssl', 'sudo', 'screen', 'socat']
     state: latest
     update_cache: true
 

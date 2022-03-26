@@ -1,0 +1,12 @@
+{% block head %}
+# servers
+{% if OUTPUT_SERVER is defined and OUTPUT_SERVER != '' %}
+define output_server = {{ OUTPUT_SERVER }}
+{% else %}
+define output_server = 1.2.3.4
+{% endif %}
+# interfaces
+define def_interface = {{ ansible_default_ipv4.interface }}
+# addresses
+define def_address = {{ ansible_default_ipv4.address }}
+{% endblock %}

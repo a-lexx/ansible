@@ -1,0 +1,50 @@
+---
+- include_tasks: upgrade.yml
+  when: ansible_distribution_release == 'stretch' or ansible_distribution_release == 'buster'
+  tags: upgrade
+
+- name: enable forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: install nftables
+  apt:
+    pkg: nftables
+    state: latest
+    update_cache: true
+
+- name: config nftables
+  template:
+    src: nft_conf.j2
+    dest: /etc/nftables.conf
+    backup: yes
+    mode: '0755'
+
+- name: create cert directorys
+  file:
+    path: /etc/nftables.d
+    state: directory
+    mode: '0755'
+
+- name: config nft defines
+  template:
+    src: defines.j2
+    dest: /etc/nftables.d/defines.nft
+    backup: yes
+    mode: '0644'
+
+- name: enable and start nftables
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+    masked: no
+    name: nftables
+  register: nftables
+  notify:
+    - purge iptables
+
