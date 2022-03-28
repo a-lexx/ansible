@@ -1,0 +1,9 @@
+/var/log/sockd*.log {
+
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    create 640 proxy proxy
+}
