@@ -1,0 +1,83 @@
+---
+### Version 1.04
+- name: set root passwd
+  user:
+    name: root
+    shell: /bin/bash
+    password: "{{ PW_ROOT }}"
+    state: present
+    generate_ssh_key: yes
+- name: packages purge
+  apt:
+    pkg: ['exim4-config', 'portmap', 'rpcbind', 'cups', 'unbound', 'samba']
+    state: absent
+    autoremove: yes
+- name: install software
+  apt:
+    pkg: ['bind9', 'fail2ban', 'logrotate']
+    state: present
+    install_recommends: no
+- name: create config file
+  template:
+    src: danted.j2
+    dest: /etc/danted.conf
+    mode: 0644
+- name: install dante-server
+  apt:
+    name: dante-server
+    state: present
+    install_recommends: yes
+  notify:
+    - started dante-server
+- name: create directory
+  file:
+    path: /etc/systemd/system/danted.service.d
+    state: directory
+    mode: '0755'
+- name: fix unit restart
+  template:
+    dest: /etc/systemd/system/danted.service.d/override.conf
+    src: override.j2
+    mode: 0644
+- name: systemd danted service up
+  systemd:
+    name: danted
+    daemon_reload: yes
+    state: started
+    enabled: yes
+    masked: no
+  ignore_errors: True
+- name: create logrotate config
+  template:
+    dest: /etc/logrotate.d/sockd
+    src: logrotate.j2
+    mode: 0644
+  ignore_errors: True
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  ignore_errors: True
+- name: disable ipv6 listen for bind9
+  lineinfile:
+    dest: /etc/bind/named.conf.options
+    state: present
+    regexp: 'listen-on-v6'
+    line: "\tlisten-on-v6 { none; };"
+- name: local resolver only
+  lineinfile:
+    dest: /etc/bind/named.conf.options
+    state: present
+    insertbefore: "listen-on-v6"
+    line: "\tlisten-on { 127.0.0.1; };"
+  notify:
+    - reload bind9
+- name: fix resolver
+  template:
+    dest: /etc/resolv.conf
+    src: resolv.conf.j2
+    mode: 0644
+    backup: yes
+
+- name: port is {{ SOCKS_PORT }}
+  debug:
+    msg: "{{ ansible_default_ipv4.address }}:{{ SOCKS_PORT }}"

@@ -67,8 +67,8 @@
       # exports
       export EDITOR=/usr/bin/vim
       export PAGER=/usr/bin/less
-      export LE_WORKING_DIR="/home/runner/.acme.sh"
-      alias acme.sh="/home/runner/.acme.sh/acme.sh"
+      export LE_WORKING_DIR="/home/{{ USER }}/.acme.sh"
+      alias acme.sh="/home/{{ USER }}/.acme.sh/acme.sh"
       # history
       HISTCONTROL=ignoredups
       HISTCONTROL=ignorespace

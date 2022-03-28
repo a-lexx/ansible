@@ -1,0 +1,10 @@
+[Unit]
+Requires=network.target
+
+[Service]
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=suspend.target

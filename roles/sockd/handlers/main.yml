@@ -1,0 +1,9 @@
+---
+- name: started dante-server
+  service:
+    name: danted
+    state: started
+- name: reload bind9
+  service:
+    name: bind9
+    state: reloaded
