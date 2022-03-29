@@ -1,5 +1,4 @@
 ---
-- include: upgrade_system.yml
 - hosts: all
   remote_user: root
   vars_prompt:
@@ -7,4 +6,5 @@
     prompt: 'Domain name:'
     private: no
   roles:
-  - role: postfix
+    - { role: upgrade-dist, tags: update }
+    - { role: postfix, tags: mta }

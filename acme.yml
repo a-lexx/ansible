@@ -11,5 +11,5 @@
     private: no
     default: blossapp.com
   roles:
-    - role: upgrade-dist
-    - role: acme.sh
+    - { role: upgrade-dist, tags: update }
+    - { role: acme.sh, tags: cert }
