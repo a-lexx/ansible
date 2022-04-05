@@ -1,0 +1,104 @@
+---
+- name: create container file
+  block:
+    - name: create cont file
+      command:
+        "{{ item }}"
+      with_items:
+        - truncate -s '{{ contsize }}'G /data.img
+        - fallocate -n -l '{{ contsize }}'GiB /data.img
+  rescue:
+    - name: create cont file
+      command: fallocate -l '{{ contsize }}'GiB /data.img
+
+- name: add loop module
+  modprobe:
+    name: loop
+    state: present
+
+- name: Attach loop device
+  command:
+    losetup -f /data.img
+
+- name: install cryptsetup package
+  apt:
+    pkg: cryptsetup
+    state: present
+    install_recommends: no
+    update_cache: true
+
+- name: create errata countainer
+  luks_device:
+    device: "/dev/loop0"
+    state: "opened"
+    type: luks1
+    cipher: 'aes-xts-plain64'
+    hash: "sha256"
+    name: "data"
+    passphrase: "{{ passcont }}"
+
+- name: add ext4 module
+  modprobe:
+    name: ext4
+    state: present
+  register: ext4
+  ignore_errors: true
+
+- name: create FS ext4
+  filesystem:
+    fstype: ext4
+    dev: /dev/mapper/data
+  when: ext4 is succeeded
+
+- name: create FS ext3
+  filesystem:
+    fstype: ext3
+    dev: /dev/mapper/data
+  when: ext4 is failed
+
+- name: add dm-mod module
+  modprobe:
+    name: dm-mod
+    state: present
+
+- name: create errata dir
+  file:
+    path: '/errata/'
+    state: directory
+    mode: 0755
+
+- name: mount errata
+  mount:
+    name: /errata
+    src: /dev/mapper/data
+    opts: "noauto,noatime,nodiratime"
+    state: mounted
+    fstype: ext4
+
+- name: create dirs
+  file:
+    path: '/errata/{{ item }}'
+    state: directory
+    mode: 0755
+    recurse: yes
+  with_items:
+    - var/log/asterisk
+    - etc/asterisk
+
+- name: link configs to errata
+  file:
+    src: '/errata/etc/{{ item }}'
+    dest: '/etc/{{ item }}'
+    state: link
+    force: yes
+  with_items:
+    - asterisk
+
+- name: link configs
+  file:
+    src: /errata/var/{{ item.from }}
+    dest: /var/{{ item.path }}
+    state: link
+    force: yes
+  with_items:
+    - { from: log/asterisk, path: log/asterisk }

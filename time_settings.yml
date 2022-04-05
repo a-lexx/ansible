@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become_user: root
+  tasks:
+    - name: install packages
+      apt:
+        pkg: ['ntpdate', 'ntp']
+        state: present
+        update_cache: true
+    - name: set timezone link
+      file:
+        src: /usr/share/zoneinfo/Etc/UTC
+        dest: /etc/timezone
+        state: link
+        force: yes
+    - name: set timezone in UTC
+      block:
+        - name: set UTC
+          timezone:
+            name: UTC
+            hwclock: UTC
+      rescue:
+        - name: force set UTC
+          command:
+            '{{ item }}'
+          with_items:
+            - dpkg-reconfigure --frontend noninteractive tzdata
+    - name: start ntp service
+      service:
+        name: ntp
+        enabled: yes
+        state: restarted

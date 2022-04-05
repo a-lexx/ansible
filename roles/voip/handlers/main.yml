@@ -1,0 +1,11 @@
+---
+- name: reload asterisk
+  service:
+    name: asterisk
+    state: reloaded
+
+- name: purge iptables
+  apt:
+    pkg: iptables
+    state: absent
+  when: nftables is succeeded
