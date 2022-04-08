@@ -1,0 +1,17 @@
+---
+- name: install nftables
+  apt:
+    pkg: nftables
+    state: latest
+    update_cache: true
+
+- name: enable and start nftables
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+    masked: no
+    name: nftables
+  register: nftables
+  notify:
+    - purge iptables

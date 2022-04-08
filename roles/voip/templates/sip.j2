@@ -1,0 +1,34 @@
+{% block head %}
+[general]
+send_diversion=yes
+externaddr={{ ansible_default_ipv4.address }}
+externtcpport=9900
+externtlsport=12600
+srvlookup=yes
+allowguest=no
+alwaysauthreject=yes
+deny=0.0.0.0/0.0.0.0
+permit=93.171.242.40/255.255.255.128
+permit=95.67.94.62/255.255.255.252
+srvlookup=yes
+
+;NUMBER
+[TRUNK]
+host=sip.zadarma.com
+insecure=invite,port
+type=friend
+fromdomain=sip.zadarma.com
+disallow=all
+allow=alaw
+allow=ulaw
+dtmfmode=auto
+secret=PASSWD
+defaultuser=TRUNK
+trunkname=TRUNK
+fromuser=TRUNK
+callbackextension=TRUNK
+context=NUMBER
+qualify=400
+directmedia=no
+nat=force_rport,comedia
+{% endblock %}
