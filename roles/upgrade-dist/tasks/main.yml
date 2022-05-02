@@ -1,5 +1,10 @@
 ---
 # tasks file for upgrade-dist
-- include_tasks: debian.yml
+- name: Debian upgrade
+  include_tasks: debian.yml
   when: ansible_distribution == 'Debian'
+  tags: package
+- name: Ubuntu upgrade
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
   tags: package
