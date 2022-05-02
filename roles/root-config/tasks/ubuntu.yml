@@ -10,7 +10,6 @@
     pkg: vim-tiny
     state: absent
     autoremove: yes
-  when: ansible_distribution_major_version|int >= 10
 
 - name: update bashrc
   template:
