@@ -159,6 +159,7 @@
     src: site.j2
     dest: /etc/nginx/sites-available/{{ FQDN }}.conf
     mode: 0600
+    backup: yes
 
 - name: enable virtual host
   file:
