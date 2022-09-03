@@ -1,0 +1,12 @@
+---
+- name: reload apache
+  service:
+    name: apache2
+    state: reloaded
+  ignore_errors: true
+
+- name: reload nginx
+  service:
+    name: nginx
+    state: reloaded
+  ignore_errors: true

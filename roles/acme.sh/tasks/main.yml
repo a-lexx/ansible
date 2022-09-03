@@ -154,9 +154,15 @@
     state: link
     mode: 0750
 
-#- name: enable virtual host
-#  file:
-#    src: ../sites-available/{{ FQDN }}.conf
-#    dest: /etc/apache2/sites-enabled/{{ FQDN }}.conf
-#    mode: 0600
+- name: create templ config
+  template:
+    src: site.j2
+    dest: /etc/nginx/sites-available/{{ FQDN }}.conf
+    mode: 0600
+
+- name: enable virtual host
+  file:
+    src: ../sites-available/{{ FQDN }}.conf
+    dest: /etc/apache2/sites-enabled/{{ FQDN }}.conf
+    mode: 0600
 

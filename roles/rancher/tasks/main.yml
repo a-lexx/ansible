@@ -1,0 +1,49 @@
+---
+- name: packages purge
+  apt:
+    pkg: ['docker', 'docker-engine', 'docker.io', 'containerd', 'runc']
+    state: absent
+    autoremove: yes
+
+- name: install packages
+  apt:
+    pkg: ['ca-certificates', 'curl', 'gnupg', 'lsb-release', 'python3-pip', 'virtualenv', 'python3-setuptools']
+    state: latest
+    update_cache: true
+
+- name: add docker gpg apt key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add docker repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+    filename: docker
+
+- name: install docker
+  apt:
+    pkg: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-compose-plugin']
+    state: latest
+    update_cache: true
+
+- name: create screenrc
+  template:
+    src: screenrc.j2
+    dest: "/home/{{ USER }}/.screenrc"
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: 0644
+
+- name: install pip docker module
+  pip:
+    name: docker
+
+- name: pull rancher docker image
+  docker_image:
+    name: "rancher/rancher"
+    source: pull
+
+- name: startup rancher
+  shell: sudo docker run --privileged -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher --acme-domain {{ FQDN }}

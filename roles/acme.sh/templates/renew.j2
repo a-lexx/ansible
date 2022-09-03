@@ -1,6 +1,7 @@
 {% block head %}
 #!/usr/bin/env bash
 
+# 4 cloudflare
 # set account env
 # export CF_Account_ID="XXXXXXXXXXZXX"
 # export CF_Token="XXXXXXXXXMXXX"
@@ -14,13 +15,13 @@
 #~/bin/acme.sh --issue --dns dns_cf -d {{ FQDN }} -d '*.{{ FQDN }}' && \
 # 4 apache2
 ~/bin/acme.sh --install-cert -d {{ FQDN }} \
-        --cert-file      /etc/apache2/certs/{{ FQDN }}/cert.pem  \
-        --key-file       /etc/apache2/certs/{{ FQDN }}/key.pem  \
-        --fullchain-file /etc/apache2/certs/{{ FQDN }}/fullchain.pem \
-        --reloadcmd      "sudo /usr/bin/systemctl reload apache2"
+#        --cert-file      /etc/apache2/certs/{{ FQDN }}/cert.pem  \
+#        --key-file       /etc/apache2/certs/{{ FQDN }}/key.pem  \
+#        --fullchain-file /etc/apache2/certs/{{ FQDN }}/fullchain.pem \
+#        --reloadcmd      "sudo /usr/bin/systemctl reload apache2"
 # 4 nginx
-#        --key-file       /etc/nginx/certs/{{ FQDN }}/key.pem  \
-#        --fullchain-file /etc/nginx/certs/{{ FQDN }}/fullchain.pem \
-#        --reloadcmd      "sudo /usr/bin/systemctl reload nginx"
+        --key-file       /etc/nginx/certs/{{ FQDN }}/key.pem  \
+        --fullchain-file /etc/nginx/certs/{{ FQDN }}/fullchain.pem \
+        --reloadcmd      "sudo /usr/bin/systemctl reload nginx"
 
 {% endblock %}

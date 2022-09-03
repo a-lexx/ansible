@@ -7,7 +7,7 @@
 
 - name: purge vim-tiny
   apt:
-    pkg: vim-tiny
+    pkg: ['vim-tiny', 'nano']
     state: absent
     autoremove: yes
 
