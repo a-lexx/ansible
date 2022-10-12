@@ -1,39 +1,34 @@
 ---
-- name: install packages
-  apt:
+- name: Install packages
+  ansible.builtin.apt:
     pkg: ['curl', 'openssl', 'sudo', 'screen', 'socat']
     state: latest
-    update_cache: true
-
-- name: create user {{ USER }}
-  user:
+    update_cache: 'True'
+- name: Create user {{ USER }}
+  ansible.builtin.user:
     name: "{{ USER }}"
     shell: /bin/bash
-    create_home: yes
     home: "/home/{{ USER }}"
-    generate_ssh_key: yes
+    generate_ssh_key: 'True'
     ssh_key_type: ecdsa
     ssh_key_bits: 384
-  ignore_errors: true
-
-- name: create screenrc
-  template:
+- name: Create screenrc
+  ansible.builtin.template:
     src: screenrc.j2
     dest: "/home/{{ USER }}/.screenrc"
     owner: "{{ USER }}"
     group: "{{ USER }}"
     mode: 0644
-
-- name: nopassword for user systemctl command
-  lineinfile:
-    dest: /etc/sudoers.d/{{ USER }}
-    create: yes
+- name: Nopassword for user systemctl command
+  ansible.builtin.lineinfile:
+    dest: "/etc/sudoers.d/{{ USER }}"
+    create: 'True'
+    mode: 0644
     regexp: '^{{ USER }} ALL\='
     line: "{{ USER }} ALL=(ALL:ALL) NOPASSWD:/usr/bin/systemctl"
     validate: 'visudo -cf %s'
-
-- name: create bin directory in {{ USER }} home
-  file:
+- name: Create bin directory in home {{ USER }}
+  ansible.builtin.file:
     path: '/home/{{ USER }}/{{ item }}'
     state: directory
     owner: "{{ USER }}"
@@ -44,19 +39,18 @@
     - bin
     - letsencrypt
     - .log/screen/
-
-- name: download acme.sh
-  get_url:
+- name: Download acme.sh
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/Neilpang/acme.sh/master/acme.sh
     dest: "/home/{{ USER }}/.acme.sh/"
     owner: "{{ USER }}"
     group: "{{ USER }}"
-    mode: 0755
-
-- name: add env to bashrc
-  blockinfile:
+    mode: '0755'
+- name: Add env to bashrc
+  ansible.builtin.blockinfile:
     path: "/home/{{ USER }}/.bashrc"
-    create: yes
+    create: 'True'
+    mode: '0644'
     block: |
       # include bash completion
       if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
@@ -75,33 +69,29 @@
       HISTCONTROL=erasedups
       shopt -s histappend
       PROMPT_COMMAND='history -a'
-
-- name: create link to script
-  file:
+- name: Create link to script
+  ansible.builtin.file:
     src: "/home/{{ USER }}/.acme.sh/acme.sh"
     dest: "/home/{{ USER }}/bin/acme.sh"
     state: link
-    force: yes
+    force: 'True'
     mode: 0750
-
-- name: renew script create
-  template:
+- name: Renew script create
+  ansible.builtin.template:
     src: renew.j2
     dest: "/home/{{ USER }}/bin/renew.sh"
     owner: "{{ USER }}"
     group: "{{ USER }}"
     mode: 0775
-
-- name: add cron job
-  cron:
+- name: Add cron job
+  ansible.builtin.cron:
     name: renew certificates
     minute: "34"
     hour: "0"
     job: "/home/runner/bin/renew.sh"
     user: "{{ USER }}"
-
-- name: create cert directorys
-  file:
+- name: Create cert directorys
+  ansible.builtin.file:
     path: '{{ item }}'
     state: directory
     owner: "{{ USER }}"
@@ -112,58 +102,49 @@
     - /etc/nginx/certs/{{ FQDN }}
     - /etc/apache2/certs
     - /etc/apache2/certs/{{ FQDN }}
-
-- name: create Diffie-Helman key
-  openssl_dhparam:
+- name: Create Diffie-Helman key
+  ansible.builtin.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
     size: 2048
-
-- name: create link to script
-  file:
+- name: Create link to script
+  ansible.builtin.file:
     src: /etc/nginx/certs/dhparam.pem
     dest: /etc/apache2/certs/dhparam.pem
     state: link
     mode: 0750
-
-- name: acme in nginx
-  template:
+- name: Acme in nginx
+  ansible.builtin.template:
     src: acme.j2
     dest: /etc/nginx/le.conf
     mode: 0600
   notify:
-    - reload nginx
-
-- name: create virtual host
-  template:
+    - Reload nginx
+- name: Create virtual host
+  ansible.builtin.template:
     src: vhost_apache.j2
     dest: /etc/apache2/sites-available/{{ FQDN }}.conf
     mode: 0600
-
-- name: acme in apache2
-  template:
+- name: Acme in apache2
+  ansible.builtin.template:
     src: le.j2
     dest: /etc/apache2/conf-available/le.conf
     mode: 0600
   notify:
-    - reload apache
-
-- name: enable le.conf
-  file:
+    - Reload apache
+- name: Enable le.conf
+  ansible.builtin.file:
     src: ../conf-available/le.conf
     dest: /etc/apache2/conf-enabled/le.conf
     state: link
     mode: 0750
-
-- name: create templ config
-  template:
+- name: Create templ config
+  ansible.builtin.template:
     src: site.j2
     dest: /etc/nginx/sites-available/{{ FQDN }}.conf
     mode: 0600
-    backup: yes
-
-- name: enable virtual host
-  file:
+    backup: 'True'
+- name: Enable virtual host
+  ansible.builtin.file:
     src: ../sites-available/{{ FQDN }}.conf
     dest: /etc/apache2/sites-enabled/{{ FQDN }}.conf
     mode: 0600
-
