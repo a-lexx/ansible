@@ -1,21 +1,21 @@
 ---
-- name: restore /etc/apt/sources.list
-  template:
+- name: Restore /etc/apt/sources.list
+  ansible.builtin.template:
     src: sources.list.j2
     dest: /etc/apt/sources.list
     mode: 0644
-    backup: yes
+    backup: true
 
-- name: upgrade system
-  apt:
+- name: Upgrade system
+  ansible.builtin.apt:
     upgrade: dist
     state: present
-    update_cache: yes
+    update_cache: true
 
-- name: remove dependencies that are no longer required
-  apt:
-    autoremove: yes
+- name: Remove dependencies that are no longer required
+  ansible.builtin.apt:
+    autoremove: true
 
-- name: remove useless packages from the cache
-  apt:
-    autoclean: yes
+- name: Remove useless packages from the cache
+  ansible.builtin.apt:
+    autoclean: true

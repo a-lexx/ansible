@@ -1,9 +1,9 @@
 ---
-- name: reload bind
-  service:
+- name: Reload bind
+  ansible.builtin.service:
     name: bind9
     state: reloaded
-- name: restart bind
-  service:
+- name: Restart bind
+  ansible.builtin.service:
     name: bind9
     state: restarted

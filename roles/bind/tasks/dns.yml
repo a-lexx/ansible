@@ -1,64 +1,58 @@
 ---
-- name: install packages
-  apt:
+- name: Install packages
+  ansible.builtin.apt:
     pkg: bind9
     state: present
     update_cache: true
   tags: pkgs
-
-- name: create dirs
-  file:
+- name: Create dirs
+  ansible.builtin.file:
     path: '/{{ item }}'
     state: directory
     mode: 0755
     owner: bind
     group: bind
-    recurse: yes
+    recurse: true
   with_items:
     - var/log/dns
     - var/cache/bind
-
-- name: include master.conf
-  lineinfile:
+- name: Include master.conf
+  ansible.builtin.lineinfile:
     path: /etc/bind/named.conf.local
     state: present
     regexp: '^include'
     line: 'include "master.conf";'
     owner: bind
     group: bind
-    backup: yes
+    backup: true
   tags: dns
-
-- name: modify named.conf.options
-  template:
+- name: Modify named.conf.options
+  ansible.builtin.template:
     src: bind.options.j2
     dest: /etc/bind/named.conf.options
     mode: 0660
     owner: bind
     group: bind
-    backup: yes
+    backup: true
   tags: dns
-
-- name: create named.conf.log
-  template:
+- name: Create named.conf.log
+  ansible.builtin.template:
     src: bind.log.j2
     dest: /etc/bind/named.conf.log
     mode: 0660
     owner: bind
     group: bind
-    backup: yes
+    backup: true
   tags: dns
-
-- name: include named.conf.log
-  lineinfile:
+- name: Include named.conf.log
+  ansible.builtin.lineinfile:
     path: /etc/bind/named.conf
     state: present
     line: 'include "/etc/bind/named.conf.log";'
-    backup: yes
+    backup: true
   tags: dns
-
-- name: bind owner and group to query.log
-  file:
+- name: Bind owner and group to query.log
+  ansible.builtin.file:
     owner: bind
     group: bind
     path: '{{ item }}'
@@ -67,35 +61,30 @@
   with_items:
     - /etc/bind
   tags: dns
-
-- name: bind owner and group to query.log
-  file:
+- name: Bind owner and group to query.log
+  ansible.builtin.file:
     owner: bind
     group: bind
     path: '/var/log/dns/query.log'
     mode: 0644
     state: touch
   tags: dns
-
-- name: create file zone
-  lineinfile:
+- name: Create file zone
+  ansible.builtin.lineinfile:
     path: /var/cache/bind/master.conf
     line: "zone \"{{ FQDN }}\" { type master; file \"{{ FQDN }}.zone\"; };"
-    create: yes
+    create: true
     group: bind
     mode: 0644
-    backup: yes
+    backup: true
   tags: dns
-
-- name: create {{ FQDN }} config
-  template:
+- name: Create config {{ FQDN }}
+  ansible.builtin.template:
     src: dom.j2
     dest: "/var/cache/bind/{{ FQDN }}.zone"
     group: bind
     mode: 0644
-    backup: yes
+    backup: true
   notify:
-    - reload bind
+    - Reload bind
   tags: dns
-
-### DNS ####

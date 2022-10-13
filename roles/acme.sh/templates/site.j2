@@ -1,0 +1,108 @@
+upstream php {
+    server unix:/run/php/php7.4-fpm.sock;
+}
+
+server {
+    listen 80;
+    server_name {{ FQDN }};
+
+    include le.conf;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+#server {
+#    listen 443 ssl;
+#    server_name {{ FQDN }};
+#
+#    index index.php index.html index.htm;
+#
+#    root /var/www/html;
+#    access_log /var/log/nginx/{{ FQDN }}-access.log;
+#    error_log /var/log/nginx/{{ FQDN }}-error.log;
+#    resolver 1.1.1.1 8.8.8.8 ipv6=off valid=30s;
+#    server_tokens off;
+#
+#    ssl_certificate /etc/nginx/certs/{{ FQDN }}/fullchain.pem;
+#    ssl_certificate_key /etc/nginx/certs/{{ FQDN }}/key.pem;
+#
+#    include /etc/nginx/conf.d/options-ssl-nginx.conf;
+#
+#    add_header X-Frame-Options "SAMEORIGIN" always;
+#    add_header X-XSS-Protection "1; mode=block" always;
+#    add_header X-Content-Type-Options "nosniff" always;
+#    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+#    add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
+#    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+#
+#    location /nginx_status {
+#        stub_status;
+#        allow  159.224.176.54;
+#        deny all;
+#    }
+#
+#    location / {
+#        location ~ ^/wp-content/(.*).log$ {
+#            deny all;
+#            log_not_found off;
+#            access_log off;
+#        }
+#        location ~ ^/?w3tc_minify=(.*) {
+#            add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+#            try_files $uri $uri/ /index.php$is_args$args;
+#        }
+#        location ~ ^/(wp-json|wp-content/themes)/(.*) {
+#            add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+#            try_files $uri $uri/ /index.php$is_args$args;
+#        }
+#        location ~ ^/(user-data-deletion|terms|terms-of-use|cookie-policy|privacy-policy)/$ {
+#            add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+#            try_files $uri $uri/ /index.php$is_args$args;
+#        }
+#        location ~* \.(css|gif|ico|jpeg|jpg|js|png|svg)$ {
+#            auth_basic "off";
+#            add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+#            expires max;
+#            log_not_found off;
+#        }
+#        try_files $uri $uri/ /index.php$is_args$args;
+#        add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+#    }
+#    location ~ \.mp4$ {
+#        mp4;
+#        mp4_buffer_size       1m;
+#        mp4_max_buffer_size   5m;
+#        limit_rate 260k;
+#        limit_rate_after 3m;
+#    }
+#    location ~ \.php$ {
+#        try_files $uri =404;
+#        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#        fastcgi_pass php;
+#        fastcgi_index index.php;
+#        fastcgi_read_timeout 240;
+#        fastcgi_buffers 8 16k;
+#        fastcgi_buffer_size 32k;
+#        fastcgi_connect_timeout 90;
+#        fastcgi_send_timeout 90;
+#        include fastcgi_params;
+#        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#        fastcgi_param PATH_INFO $fastcgi_path_info;
+#        add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+#    }
+#    location ~ /\.ht {
+#        deny all;
+#    }
+#    location ~ /\.git {
+#        deny all;
+#    }
+#    location = /favicon.ico {
+#        log_not_found off; access_log off;
+#    }
+#    location = /robots.txt {
+#        root /var/www/static/;
+#        log_not_found off; access_log off; allow all;
+#    }
+#}
