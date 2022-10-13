@@ -1,12 +1,11 @@
 ---
-- name: reload apache
-  service:
+- name: Reload apache
+  ansible.builtin.service:
     name: apache2
     state: reloaded
   ignore_errors: true
-
-- name: reload nginx
-  service:
+- name: Reload nginx
+  ansible.builtin.service:
     name: nginx
     state: reloaded
   ignore_errors: true

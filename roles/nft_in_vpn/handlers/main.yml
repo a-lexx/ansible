@@ -1,6 +1,6 @@
 ---
-- name: purge iptables
-  apt:
+- name: Purge iptables
+  ansible.builtin.apt:
     pkg: iptables
     state: absent
   when: nftables is succeeded
