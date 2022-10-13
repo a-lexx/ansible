@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Setup and configure Postfix server
+  hosts: all
   remote_user: root
   vars_prompt:
   - name: "FQDN"

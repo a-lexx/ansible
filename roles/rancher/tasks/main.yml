@@ -1,49 +1,51 @@
 ---
-- name: packages purge
-  apt:
+- name: Packages purge
+  ansible.builtin.apt:
     pkg: ['docker', 'docker-engine', 'docker.io', 'containerd', 'runc']
     state: absent
-    autoremove: yes
-
-- name: install packages
-  apt:
+    autoremove: true
+- name: Install packages
+  ansible.builtin.apt:
     pkg: ['ca-certificates', 'curl', 'gnupg', 'lsb-release', 'python3-pip', 'virtualenv', 'python3-setuptools']
     state: latest
     update_cache: true
-
-- name: add docker gpg apt key
-  apt_key:
+- name: Add docker gpg apt key
+  ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
-
-- name: add docker repository
-  apt_repository:
+- name: Add docker repository
+  ansible.builtin.apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
     state: present
     filename: docker
-
-- name: install docker
-  apt:
+- name: Install docker
+  ansible.builtin.apt:
     pkg: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-compose-plugin']
     state: latest
     update_cache: true
-
-- name: create screenrc
-  template:
+- name: Create screenrc
+  ansible.builtin.template:
     src: screenrc.j2
     dest: "/home/{{ USER }}/.screenrc"
     owner: "{{ USER }}"
     group: "{{ USER }}"
     mode: 0644
-
-- name: install pip docker module
-  pip:
+- name: Install pip docker module
+  ansible.builtin.pip:
     name: docker
-
-- name: pull rancher docker image
-  docker_image:
+- name: Pull rancher docker image
+  community.docker.docker_image:
     name: "rancher/rancher"
     source: pull
-
-- name: startup rancher
-  shell: sudo docker run --privileged -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher --acme-domain {{ FQDN }}
+- name: Startup rancher
+  ansible.builtin.command: sudo docker run --privileged -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher --acme-domain {{ FQDN }}
+###### 4 future
+###- name: Startup rancher
+###  community.docker.docker_container:
+###    name: rancher
+###    image: rancher/rancher
+###    ports:
+###      - "80:80"
+###      - "443:443"
+###    privileged: true
+###

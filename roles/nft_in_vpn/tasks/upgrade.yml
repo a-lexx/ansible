@@ -1,69 +1,55 @@
 ---
-### upgrade if stretch
-- block:
-
-  - name: delete backports.list
-    file:
-      state: absent
-      path: /etc/apt/sources.list.d/backports.list
-
-  - name: up distr to stretch
-    replace:
-      path: /etc/apt/sources.list
-      regexp: 'stretch'
-      replace: 'buster'
-
-  - name: Upgrade system
-    apt:
-      upgrade: dist
-      state: present
-      update_cache: yes
-      dpkg_options: 'force-confold,force-confdef'
-
-  - name: Remove dependencies that are no longer required
-    apt:
-      autoremove: yes
-
-  - name: Remove useless packages from the cache
-    apt:
-      autoclean: yes
-
-  - name: reboot the node
-    reboot:
-      reboot_timeout: 3600
+- name: Stretch configure (upgrade if stretch)
+  block:
+    - name: Delete backports.list
+      ansible.builtin.file:
+        state: absent
+        path: /etc/apt/sources.list.d/backports.list
+    - name: Up distr to stretch
+      ansible.builtin.replace:
+        path: /etc/apt/sources.list
+        regexp: 'stretch'
+        replace: 'buster'
+    - name: Upgrade system
+      ansible.builtin.apt:
+        upgrade: dist
+        state: present
+        update_cache: true
+        dpkg_options: 'force-confold,force-confdef'
+    - name: Remove dependencies that are no longer required
+      ansible.builtin.apt:
+        autoremove: true
+    - name: Remove useless packages from the cache
+      ansible.builtin.apt:
+        autoclean: true
+    - name: Reboot the node
+      ansible.builtin.reboot:
+        reboot_timeout: 3600
   when: ansible_distribution_release == 'stretch'
-
-### upgrade if buster
-- block:
-
-  - name: delete backports.list buster
-    file:
-      state: absent
-      path: /etc/apt/sources.list.d/backports.list
-
-  - name: upgrade buster
-    template:
-      src: sources.list.j2
-      dest: /etc/apt/sources.list
-      mode: 0644
-
-  - name: upgrade buster to bullseye
-    apt:
-      upgrade: dist
-      state: present
-      update_cache: yes
-      dpkg_options: 'force-confold,force-confdef'
-
-  - name: Remove dependencies that are no longer required buster
-    apt:
-      autoremove: yes
-
-  - name: Remove useless packages from the cache buster
-    apt:
-      autoclean: yes
-
-  - name: reboot the node
-    reboot:
-      reboot_timeout: 3600
+- name: Buster configure (upgrade if buster)
+  block:
+    - name: Delete backports.list
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/backports.list
+        state: absent
+    - name: Upgrade buster
+      ansible.builtin.template:
+        src: sources.list.j2
+        dest: /etc/apt/sources.list
+        mode: 0644
+    - name: Upgrade buster to bullseye
+      ansible.builtin.apt:
+        upgrade: dist
+        state: present
+        update_cache: true
+        dpkg_options: 'force-confold,force-confdef'
+    - name: Remove dependencies that are no longer required buster
+      ansible.builtin.apt:
+        autoremove: true
+    - name: Remove useless packages from the cache buster
+      ansible.builtin.apt:
+        autoclean: true
+    - name: Reboot the node
+      ansible.builtin.reboot:
+        reboot_timeout: 3600
   when: ansible_distribution_release == 'buster'
-
