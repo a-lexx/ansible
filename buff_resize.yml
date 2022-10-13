@@ -1,16 +1,16 @@
 ---
-- hosts: all
+- name: OVPN server up buffres
+  hosts: all
   gather_facts: false
   tasks:
-  - name: resize to up buffer
-    sysctl:
+  - name: Resize to up buffer
+    ansible.posix.sysctl:
       name: "{{ item.name }}"
       value: "{{ item.value }}"
       sysctl_file: /etc/sysctl.d/11-buffer.conf
-      sysctl_set: yes
+      sysctl_set: true
       state: present
-      reload: yes
+      reload: true
     loop:
       - { name: 'net.core.wmem_default', value: '524288' }
       - { name: 'net.core.rmem_default', value: '524288' }
-
