@@ -1,32 +1,33 @@
 ---
-- hosts: all
-  become_user: root
+- name: NTP configuration
+  hosts: all
   tasks:
-    - name: install packages
-      apt:
+    - name: Install packages
+      ansible.builtin.apt:
         pkg: ['ntpdate', 'ntp']
         state: present
         update_cache: true
-    - name: set timezone link
-      file:
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    - name: Set timezone link
+      ansible.builtin.file:
         src: /usr/share/zoneinfo/Etc/UTC
         dest: /etc/timezone
         state: link
-        force: yes
-    - name: set timezone in UTC
+        force: true
+    - name: Set timezone in UTC
       block:
-        - name: set UTC
-          timezone:
+        - name: Set UTC
+          community.general.timezone:
             name: UTC
             hwclock: UTC
       rescue:
-        - name: force set UTC
-          command:
+        - name: Force set UTC
+          ansible.builtin.command:
             '{{ item }}'
           with_items:
             - dpkg-reconfigure --frontend noninteractive tzdata
-    - name: start ntp service
-      service:
+    - name: Start ntp service
+      ansible.builtin.service:
         name: ntp
-        enabled: yes
+        enabled: true
         state: restarted
