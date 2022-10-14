@@ -1,0 +1,27 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    pkg: ['ntpdate', 'ntp']
+    state: present
+    update_cache: true
+  notify:
+    - Start ntp service
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+- name: Set timezone link
+  ansible.builtin.file:
+    src: /usr/share/zoneinfo/Etc/UTC
+    dest: /etc/timezone
+    state: link
+    force: true
+- name: Set timezone in UTC
+  block:
+    - name: Set UTC
+      community.general.timezone:
+        name: UTC
+        hwclock: UTC
+  rescue:
+    - name: Force set UTC
+      ansible.builtin.command:
+        '{{ item }}'
+      with_items:
+        - dpkg-reconfigure --frontend noninteractive tzdata

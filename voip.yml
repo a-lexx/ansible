@@ -1,29 +1,34 @@
 ---
-- include_tasks: time_settings.yml
-- include_tasks: disable_ipv6.yml
-- hosts: all
+- name: Setup and configure asterisk server
+  hosts: all
   remote_user: root
   vars_prompt:
-  - name: "pwroot"
-    prompt: "Enter root passwd"
-    encrypt: "sha512_crypt"
-    confirm: yes
-    salt_size: 7
-    private: no
-  - name: "hostname"
-    prompt: "Enter hostname for node"
-    private: no
-  - name: "server_env"
-    prompt: "use a single value main or reserv"
-    private: no
-    default: "main"
-  - name: "contsize"
-    prompt: "Enter size of container in GiB"
-    private: no
-    default: "5"
-  - name: "passcont"
-    prompt: "Enter passcont, use: openssl rand -base64 48"
-    private: no
+    - name: "pwroot"
+      prompt: "Enter root passwd"
+      encrypt: "sha512_crypt"
+      confirm: yes
+      salt_size: 7
+      private: no
+    - name: "hostname"
+      prompt: "Enter hostname for node"
+      private: no
+    - name: "server_env"
+      prompt: "use a single value main or reserv"
+      private: no
+      default: "main"
+    - name: "contsize"
+      prompt: "Enter size of container in GiB"
+      private: no
+      default: "5"
+    - name: "passcont"
+      prompt: "Enter passcont, use: openssl rand -base64 48"
+      private: no
+  tasks:
+    - name: Include conf tasks
+      include_tasks: "{{ item }}"
+      loop:
+        - time_settings.yml
+        - disable_ipv6.yml
   roles:
     - { role: upgrade-dist, tags: update }
     - { role: voip, tags: pbx }
