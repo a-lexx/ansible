@@ -2,3 +2,4 @@ skip_list:
   - experimental
 #  - 'fqcn-builtins'
   - '403'
+  - no-tabs

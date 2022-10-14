@@ -40,12 +40,11 @@
 - name: Startup rancher
   ansible.builtin.command: sudo docker run --privileged -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher --acme-domain {{ FQDN }}
 ###### 4 future
-###- name: Startup rancher
-###  community.docker.docker_container:
-###    name: rancher
-###    image: rancher/rancher
-###    ports:
-###      - "80:80"
-###      - "443:443"
-###    privileged: true
-###
+### - name: Startup rancher
+###   community.docker.docker_container:
+###     name: rancher
+###     image: rancher/rancher
+###     ports:
+###       - "80:80"
+###       - "443:443"
+###     privileged: true

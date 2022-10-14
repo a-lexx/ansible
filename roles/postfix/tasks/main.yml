@@ -1,7 +1,7 @@
 # tasks file for postfix
 ---
-- name: configure debconf
-  debconf:
+- name: Configure debconf
+  ansible.builtin.debconf:
     name: "{{ item.name }}"
     question: "{{ item.question }}"
     value: "{{ item.value }}"
@@ -11,9 +11,8 @@
     - configuration
     - postfix
     - postfix-install
-
-- name: install package
-  apt:
+- name: Install package
+  ansible.builtin.apt:
     name: "{{ item }}"
     state: "{{ apt_install_state | default('latest') }}"
     update_cache: true
@@ -23,28 +22,25 @@
     - configuration
     - postfix
     - postfix-install
-
-- name: update configuration file main.cf
-  template:
+- name: Update configuration file main.cf
+  ansible.builtin.template:
     src: main_cf.j2
     dest: /etc/postfix/main.cf
     owner: root
     group: root
     mode: 0644
-  notify: restart postfix
+  notify: Restart postfix
   tags:
     - configuration
     - postfix
     - postfix-configuration
-
-- name: upload header_checks
-  template:
+- name: Upload header_checks
+  ansible.builtin.template:
     src: header_checks.j2
     dest: /etc/postfix/header_checks
     mode: 0600
-
-- name: configure aliases
-  lineinfile:
+- name: Configure aliases
+  ansible.builtin.lineinfile:
     dest: /etc/aliases
     regexp: '^{{ item.user }}:.*'
     line: '{{ item.user }}: {{ item.alias }}'
@@ -55,42 +51,36 @@
     state: present
   with_items: "{{ postfix_aliases }}"
   notify:
-    - new aliases
-    - restart postfix
+    - New aliases
+    - Restart postfix
   tags:
     - configuration
     - postfix
     - postfix-aliases
-
-- name: create cert dir
-  file:
+- name: Create cert dir
+  ansible.builtin.file:
     path: /etc/nginx/certs/
     state: directory
     mode: 0750
-
-- name: create Diffie-Helman key
-  openssl_dhparam:
+- name: Create Diffie-Helman key
+  community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
     size: 2048
-
-- name: transport
-  template:
+- name: Transport
+  ansible.builtin.template:
     src: transport.j2
     dest: /etc/postfix/transport
     mode: 0600
-
-- name: postmap for transport
-  command: |
+- name: Postmap for transport
+  ansible.builtin.command: |
     postmap /etc/postfix/transport
   args:
     chdir: /etc/postfix/
     removes: /etc/postfix/transport
-
-- name: start service
-  service:
+- name: Start service
+  ansible.builtin.service:
     name: postfix
     state: started
-
 #    state: "{{ service_default_state | default('started') }}"
 #    enabled: "{{ service_default_enabled | default(true) | bool }}"
 #  tags:
