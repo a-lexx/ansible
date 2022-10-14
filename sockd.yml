@@ -1,15 +1,16 @@
 ---
-- hosts: all
+- name: Setup and configure sockd (danted-server)
+  hosts: all
   remote_user: root
   vars_prompt:
   - name: "PW_ROOT"
     prompt: "Enter root passwd"
     encrypt: "sha512_crypt"
-    confirm: yes
-    private: no
+    confirm: true
+    private: false
   - name: "SOCKS_PORT"
     prompt: "Enter port"
-    private: no
+    private: false
     default: 53535
   roles:
     - { role: sockd, tags: sockd }

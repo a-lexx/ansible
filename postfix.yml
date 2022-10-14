@@ -5,7 +5,7 @@
   vars_prompt:
   - name: "FQDN"
     prompt: 'Domain name:'
-    private: no
+    private: false
   roles:
     - { role: upgrade-dist, tags: update }
     - { role: postfix, tags: mta }
