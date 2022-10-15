@@ -1,0 +1,15 @@
+---
+- name: Setup and configure dm-crypt
+  hosts: all
+  remote_user: root
+  vars_prompt:
+    - name: "CRYPT_SIZE"
+      prompt: "Enter size of container in GiB"
+      private: no
+    - name: "CRYPT_PASSWD"
+      prompt: "Enter passcont, use: openssl rand -base64 48"
+      private: no
+  roles:
+    - { role: utc, tags: ntp }
+    - { role: disable-ipv6, tags: sysctl }
+    - { role: crypt, tags: security }

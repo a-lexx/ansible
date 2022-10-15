@@ -1,0 +1,68 @@
+---
+- name: Create container file fixed size (512 MB)
+  community.general.filesize:
+    path: /data.img
+    size: 512.0 MiB
+    source: /dev/urandom
+  when: CRYPT_SIZE is undefined or CRYPT_SIZE|length == 0
+- name: Create container file with set size
+  community.general.filesize:
+    path: /data.img
+    size: "{{ CRYPT_SIZE }}GB"
+    source: /dev/urandom
+  when: CRYPT_SIZE is defined or CRYPT_SIZE|length > 0
+- name: Add loop module
+  community.general.modprobe:
+    name: loop
+    state: present
+- name: Attach loop device
+  ansible.builtin.command:
+    losetup -f /data.img
+- name: Install cryptsetup package
+  ansible.builtin.apt:
+    pkg: cryptsetup
+    state: present
+    install_recommends: no
+    update_cache: true
+- name: Create errata countainer
+  community.crypto.luks_device:
+    label: "data"
+    device: "/dev/loop0"
+    state: "opened"
+    type: luks2
+    cipher: "aes-xts-plain64"
+    hash: "sha256"
+    name: "data"
+    passphrase: "{{ CRYPT_PASSWD }}"
+- name: Add ext4 module
+  community.general.modprobe:
+    name: ext4
+    state: present
+  register: ext4
+  ignore_errors: true
+- name: Create FS ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: /dev/mapper/data
+  when: ext4 is succeeded
+- name: Create FS ext3
+  community.general.filesystem:
+    fstype: ext3
+    dev: /dev/mapper/data
+  when: ext4 is failed
+- name: Add dm-mod module
+  community.general.modprobe:
+    name: dm-mod
+    state: present
+- name: Create errata dir
+  ansible.builtin.file:
+    path: '/errata/'
+    state: directory
+    mode: 0755
+- name: Mount errata directory
+  ansible.posix.mount:
+    name: /errata
+    src: /dev/mapper/data
+    opts: "noauto,noatime,nodiratime"
+    fstype: ext4
+    state: mounted

@@ -1,0 +1,8 @@
+---
+- name: NTP configuration
+  hosts: all
+  tasks:
+    - name: Get public IP
+      ipify_facts:
+      register: IP
+    - debug: msg="{{ ipify_public_ip }}"

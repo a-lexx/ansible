@@ -1,0 +1,5 @@
+---
+- name: NTP configuration
+  hosts: all
+  roles:
+    - { role: utc, tags: ntp }
