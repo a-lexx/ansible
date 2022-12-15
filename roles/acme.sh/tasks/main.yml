@@ -1,8 +1,9 @@
 ---
 - name: Install packages
   ansible.builtin.apt:
-    pkg: ['curl', 'openssl', 'sudo', 'screen', 'socat']
+    pkg: ['curl', 'openssl', 'sudo', 'screen', 'socat', 'nginx-full']
     state: latest
+    install_recommends: no
     update_cache: 'True'
 - name: Create user {{ USER }}
   ansible.builtin.user:
