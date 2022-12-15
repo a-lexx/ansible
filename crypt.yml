@@ -7,7 +7,7 @@
       prompt: "Enter size of container in GiB"
       private: no
     - name: "CRYPT_PASSWD"
-      prompt: "Enter passcont, use: openssl rand -base64 48"
+      prompt: "Enter password"
       private: no
   roles:
     - { role: utc, tags: ntp }

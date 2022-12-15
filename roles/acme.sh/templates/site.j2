@@ -102,7 +102,8 @@ server {
 #        log_not_found off; access_log off;
 #    }
 #    location = /robots.txt {
-#        root /var/www/static/;
+#        add_header Content-Type text/plain;
+#        return 200 'User-agent: *\nDisallow: /\n';
 #        log_not_found off; access_log off; allow all;
 #    }
 #}
