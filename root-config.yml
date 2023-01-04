@@ -4,3 +4,4 @@
   roles:
     - { role: root-config, tags: config }
     - { role: upgrade-dist, tags: update }
+    - { role: motd, tags: config }
