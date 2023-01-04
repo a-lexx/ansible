@@ -3,7 +3,7 @@
   ansible.builtin.apt:
     pkg: ['curl', 'openssl', 'sudo', 'screen', 'socat', 'nginx-full']
     state: latest
-    install_recommends: no
+    install_recommends: false
     update_cache: 'True'
 - name: Create user {{ USER }}
   ansible.builtin.user:
@@ -104,7 +104,7 @@
     - /etc/apache2/certs
     - /etc/apache2/certs/{{ FQDN }}
 - name: Create Diffie-Helman key
-  ansible.builtin.openssl_dhparam:
+  community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
     size: 2048
 - name: Create link to script

@@ -1,12 +1,12 @@
 ---
-- name: Install packages screenfetch & inxi
+- name: Install packages screenfetch and inxi
   ansible.builtin.apt:
     pkg: ['screenfetch', 'inxi']
     state: latest
     update_cache: true
     install_recommends: false
 - name: Find files in motd directory
-  find:
+  ansible.builtin.find:
     paths: /etc/update-motd.d/
     file_type: file
     patterns: "*"

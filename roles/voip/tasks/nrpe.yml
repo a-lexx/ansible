@@ -1,22 +1,22 @@
 ---
 - name: install monitoring plugins
-  apt:
+  ansible.builtin.apt:
     name: monitoring-plugins-basic
 
 - name: add plugin check_registrations
-  template:
+  ansible.builtin.template:
     src: check_registrations.j2
     dest: /usr/lib/nagios/plugins/check_registrations
     mode: 0755
 
 - name: add plugin check_trunks
-  template:
+  ansible.builtin.template:
     src: check_trunks.j2
     dest: /usr/lib/nagios/plugins/check_trunks
     mode: 0755
 
 - name: add check_trunks command to nrpe config
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/nagios/nrpe_local.cfg
     line: "command[check_trunks]=sudo /usr/lib/nagios/plugins/check_trunks"
     state: present
@@ -25,7 +25,7 @@
     - reload nrpe
 
 - name: add check_registrations command to nrpe config
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/nagios/nrpe_local.cfg
     line: "command[check_registrations]=sudo /usr/lib/nagios/plugins/check_registrations"
     state: present
@@ -34,7 +34,7 @@
     - reload nrpe
 
 - name: add check_memory command to nrpe config
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/nagios/nrpe_local.cfg
     line: "command[check_memory]=/usr/lib/nagios/plugins/check_memory -f -w 10 -c 5"
     state: present
@@ -43,19 +43,19 @@
     - reload nrpe
 
 - name: install plugin for sip and iax
-  get_url:
+  ansible.builtin.get_url:
     dest: /usr/lib/nagios/plugins/check_asterisk_peers
     url: 'https://exchange.nagios.org/components/com_mtree/attachment.php?link_id=1304&cf_id=29'
     mode: 0755
 
 - name: install plugin for sip and iax
-  get_url:
+  ansible.builtin.get_url:
     dest: /usr/lib/nagios/plugins/check_memory
     url: 'https://raw.githubusercontent.com/justintime/nagios-plugins/master/check_mem/check_mem.pl'
     mode: 0755
 
 - name: add check_asterisk_peers to sudoers
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
     insertafter: '^root'
@@ -64,7 +64,7 @@
     validate: 'visudo -cf %s'
 
 - name: add check_registrations to sudoers
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
     insertafter: '^root'
@@ -73,7 +73,7 @@
     validate: 'visudo -cf %s'
 
 - name: add check_trunks to sudoers
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
     insertafter: '^root'
