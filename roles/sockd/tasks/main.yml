@@ -6,17 +6,16 @@
     shell: /bin/bash
     password: "{{ PW_ROOT }}"
     state: present
-    generate_ssh_key: yes
+    generate_ssh_key: true
 - name: Packages purge
   ansible.builtin.apt:
     pkg: ['exim4-config', 'portmap', 'rpcbind', 'cups', 'unbound', 'samba']
     state: absent
-    autoremove: yes
 - name: Install software
   ansible.builtin.apt:
     pkg: ['bind9', 'fail2ban', 'logrotate']
     state: present
-    install_recommends: no
+    install_recommends: false
 - name: Create config file
   ansible.builtin.template:
     src: danted.j2
@@ -26,7 +25,7 @@
   ansible.builtin.apt:
     name: dante-server
     state: present
-    install_recommends: yes
+    install_recommends: false
   notify:
     - Started dante-server
 - name: Create directory
@@ -42,10 +41,10 @@
 - name: Systemd danted service up
   ansible.builtin.systemd:
     name: danted
-    daemon_reload: yes
+    daemon_reload: true
     state: started
-    enabled: yes
-    masked: no
+    enabled: true
+    masked: false
   ignore_errors: true
 - name: Create logrotate config
   ansible.builtin.template:
