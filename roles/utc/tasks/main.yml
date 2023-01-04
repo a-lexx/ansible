@@ -21,7 +21,8 @@
         hwclock: UTC
   rescue:
     - name: Force set UTC
-      ansible.builtin.command:
-        '{{ item }}'
-      with_items:
-        - dpkg-reconfigure --frontend noninteractive tzdata
+      ansible.builtin.systemd:
+        name: systemd-timedated.service
+        enabled: yes
+        masked: no
+        state: started
