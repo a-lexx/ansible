@@ -1,0 +1,6 @@
+---
+- name: Configure motd
+  hosts: all
+  remote_user: root
+  roles:
+    - { role: motd, tags: config }

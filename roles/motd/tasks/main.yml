@@ -1,0 +1,24 @@
+---
+- name: Install packages screenfetch & inxi
+  ansible.builtin.apt:
+    pkg: ['screenfetch', 'inxi']
+    state: latest
+    update_cache: true
+    install_recommends: false
+- name: Find files in motd directory
+  find:
+    paths: /etc/update-motd.d/
+    file_type: file
+    patterns: "*"
+  register: filelist
+- name: Disable default scripts
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: touch
+    mode: a-x
+  with_items: "{{ filelist.files }}"
+- name: Configure motd FCM
+  ansible.builtin.template:
+    dest: /etc/update-motd.d/11-fulcrum
+    src: motd-script.j2
+    mode: 0755
