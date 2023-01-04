@@ -5,10 +5,10 @@
   vars_prompt:
     - name: "CRYPT_SIZE"
       prompt: "Enter size of container in GiB"
-      private: no
+      private: false
     - name: "CRYPT_PASSWD"
       prompt: "Enter password"
-      private: no
+      private: false
   roles:
     - { role: utc, tags: ntp }
     - { role: disable-ipv6, tags: sysctl }

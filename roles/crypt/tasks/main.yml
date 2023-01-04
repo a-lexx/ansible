@@ -22,7 +22,7 @@
   ansible.builtin.apt:
     pkg: cryptsetup
     state: present
-    install_recommends: no
+    install_recommends: false
     update_cache: true
 - name: Create errata countainer
   community.crypto.luks_device:

@@ -23,6 +23,6 @@
     - name: Force set UTC
       ansible.builtin.systemd:
         name: systemd-timedated.service
-        enabled: yes
-        masked: no
+        enabled: true
+        masked: false
         state: started

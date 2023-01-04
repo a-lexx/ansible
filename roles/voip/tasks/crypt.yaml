@@ -11,7 +11,7 @@
     - name: Create cont file
       ansible.builtin.command: fallocate -l '{{ contsize }}'GiB /data.img
 - name: Add loop module
-  modprobe:
+  community.general.modprobe:
     name: loop
     state: present
 - name: Attach loop device
@@ -33,7 +33,7 @@
     name: "data"
     passphrase: "{{ passcont }}"
 - name: Add ext4 module
-  modprobe:
+  community.general.modprobe:
     name: ext4
     state: present
   register: ext4
@@ -49,7 +49,7 @@
     dev: /dev/mapper/data
   when: ext4 is failed
 - name: Add dm-mod module
-  modprobe:
+  community.general.modprobe:
     name: dm-mod
     state: present
 - name: Create errata dir
