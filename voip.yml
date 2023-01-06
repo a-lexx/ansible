@@ -6,26 +6,25 @@
     - name: "pwroot"
       prompt: "Enter root passwd"
       encrypt: "sha512_crypt"
-      confirm: yes
+      confirm: true
       salt_size: 7
-      private: no
+      private: false
     - name: "hostname"
       prompt: "Enter hostname for node"
-      private: no
+      private: false
     - name: "server_env"
       prompt: "use a single value main or reserv"
-      private: no
+      private: false
       default: "main"
-    - name: "contsize"
+    - name: "CRYPT_SIZE"
       prompt: "Enter size of container in GiB"
-      private: no
-      default: "5"
-    - name: "passcont"
-      prompt: "Enter passcont, use: openssl rand -base64 48"
-      private: no
+      private: false
+    - name: "CRYPT_PASSWD"
+      prompt: "Enter password"
+      private: false
   tasks:
     - name: Include conf tasks
-      include_tasks: "{{ item }}"
+      ansible.legacy.include_tasks: "{{ item }}"
       loop:
         - time_settings.yml
         - disable_ipv6.yml

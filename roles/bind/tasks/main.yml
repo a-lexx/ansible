@@ -1,6 +1,6 @@
 ---
 - name: Configure dns server
-  ansible.builtin.include_tasks: dns.yml
+  ansible.legacy.include_tasks: dns.yml
   tags: bind
 - name: Deinstall apparmor
   ansible.builtin.apt:

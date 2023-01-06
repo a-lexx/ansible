@@ -1,21 +1,21 @@
 ---
-- name: install monitoring plugins
+- name: Nrpe Install monitoring plugins
   ansible.builtin.apt:
     name: monitoring-plugins-basic
 
-- name: add plugin check_registrations
+- name: Nrpe Add plugin check_registrations
   ansible.builtin.template:
     src: check_registrations.j2
     dest: /usr/lib/nagios/plugins/check_registrations
     mode: 0755
 
-- name: add plugin check_trunks
+- name: Nrpe Add plugin check_trunks
   ansible.builtin.template:
     src: check_trunks.j2
     dest: /usr/lib/nagios/plugins/check_trunks
     mode: 0755
 
-- name: add check_trunks command to nrpe config
+- name: Nrpe Add check_trunks command to nrpe config
   ansible.builtin.lineinfile:
     dest: /etc/nagios/nrpe_local.cfg
     line: "command[check_trunks]=sudo /usr/lib/nagios/plugins/check_trunks"
@@ -24,7 +24,7 @@
   notify:
     - reload nrpe
 
-- name: add check_registrations command to nrpe config
+- name: Nrpe Add check_registrations command to nrpe config
   ansible.builtin.lineinfile:
     dest: /etc/nagios/nrpe_local.cfg
     line: "command[check_registrations]=sudo /usr/lib/nagios/plugins/check_registrations"
@@ -33,7 +33,7 @@
   notify:
     - reload nrpe
 
-- name: add check_memory command to nrpe config
+- name: Nrpe Add check_memory command to nrpe config
   ansible.builtin.lineinfile:
     dest: /etc/nagios/nrpe_local.cfg
     line: "command[check_memory]=/usr/lib/nagios/plugins/check_memory -f -w 10 -c 5"
@@ -42,19 +42,19 @@
   notify:
     - reload nrpe
 
-- name: install plugin for sip and iax
+- name: Nrpe Install plugin for sip and iax
   ansible.builtin.get_url:
     dest: /usr/lib/nagios/plugins/check_asterisk_peers
     url: 'https://exchange.nagios.org/components/com_mtree/attachment.php?link_id=1304&cf_id=29'
     mode: 0755
 
-- name: install plugin for sip and iax
+- name: Nrpe Install plugin for sip and iax
   ansible.builtin.get_url:
     dest: /usr/lib/nagios/plugins/check_memory
     url: 'https://raw.githubusercontent.com/justintime/nagios-plugins/master/check_mem/check_mem.pl'
     mode: 0755
 
-- name: add check_asterisk_peers to sudoers
+- name: Nrpe Add check_asterisk_peers to sudoers
   ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
@@ -63,7 +63,7 @@
     line: 'nagios ALL=(ALL) NOPASSWD: /usr/lib/nagios/plugins/check_asterisk_peers'
     validate: 'visudo -cf %s'
 
-- name: add check_registrations to sudoers
+- name: Nrpe Add check_registrations to sudoers
   ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
@@ -72,7 +72,7 @@
     line: 'nagios ALL=(ALL) NOPASSWD: /usr/lib/nagios/plugins/check_registrations'
     validate: 'visudo -cf %s'
 
-- name: add check_trunks to sudoers
+- name: Nrpe Add check_trunks to sudoers
   ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present

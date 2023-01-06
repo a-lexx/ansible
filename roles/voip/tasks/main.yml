@@ -1,187 +1,189 @@
 ---
-- import_tasks: crypt.yaml
-- name: set hostname
-  hostname:
+- name: Include role
+  ansible.builtin.import_tasks: crypt.yaml
+- name: Set hostname
+  ansible.builtin.hostname:
     name: "{{ hostname }}"
-  ignore_errors: True
-- name: add hostname in hosts
-  lineinfile:
+  ignore_errors: true
+- name: Add hostname on remote host
+  ansible.builtin.lineinfile:
     dest: /etc/hosts
     line: "127.0.1.1\t{{ hostname }}"
-- name: set root passwd
-  user:
+- name: Set root passwd
+  ansible.builtin.user:
     name: root
     shell: /bin/bash
     password: "{{ pwroot }}"
-    generate_ssh_key: yes
+    generate_ssh_key: true
     state: present
-- name: change /etc/apt/sources.list
-  template:
+- name: Change /etc/apt/sources.list
+  ansible.builtin.template:
     src: sources.list.j2
     dest: /etc/apt/sources.list
-- name: install packages
-  apt:
+- name: Install packages
+  ansible.builtin.apt:
     pkg: ['cryptsetup', 'asterisk']
     state: present
-    install_recommends: no
+    install_recommends: false
     update_cache: true
-- name: add ~/.bashrc
-  template:
+- name: Add ~/.bashrc
+  ansible.builtin.template:
     src: bashrc_root.j2
     dest: /root/.bashrc
     mode: 0600
-- name: add ~/.vimrc
-  template:
+- name: Add ~/.vimrc
+  ansible.builtin.template:
     src: vimrc.j2
     dest: /root/.vimrc
     mode: 0600
-- name: add pub key
-  template:
+- name: Add pub key
+  ansible.builtin.template:
     src: pub.j2
     dest: /root/.ssh/authorized_keys
-- name: disable history
-  lineinfile:
+- name: Disable history
+  ansible.builtin.lineinfile:
     dest: /root/.profile
     line: "unset HISTFILE"
     insertbefore: "mesg n"
-- name: del history
-  file:
+- name: Del history
+  ansible.builtin.file:
     path: /root/.bash_history
     state: absent
-  ignore_errors: True
-- name: packages purge
-  apt:
-    pkg: ['exim4-config', 'portmap', 'rpcbind', 'apache2', 'postfix', 'cups', 'unbound', 'dovecot-core', 'dovecot-imapd', 'dovecot-pop3d', 'spamassassin', 'samba', 'vsftpd', 'mysql-server']
+  ignore_errors: true
+- name: Packages purge
+  ansible.builtin.apt:
+    pkg: ['exim4-config', 'portmap', 'rpcbind', 'apache2', 'postfix', 'cups', 'unbound', 'dovecot-*', 'spamassassin', 'samba', 'vsftpd', 'mysql-server']
     state: absent
-    autoremove: yes
-- name: disable autostart on boot
-  systemd:
-    enabled: no
+- name: Disable autostart on boot
+  ansible.builtin.systemd:
+    enabled: false
     name: asterisk
     state: stopped
-    masked: no
-- name: set iax.conf
-  template:
+    masked: false
+- name: Set iax.conf
+  ansible.builtin.template:
     src: iax.j2
     dest: /etc/asterisk/iax.conf
     mode: 0640
-    backup: yes
+    backup: true
     owner: asterisk
     group: asterisk
-- name: set sip.conf
-  template:
+- name: Set sip.conf
+  ansible.builtin.template:
     src: sip.j2
     dest: /etc/asterisk/sip.conf
     mode: 0640
-    backup: yes
+    backup: true
     owner: asterisk
     group: asterisk
-- name: disable cdr_radius
-  lineinfile:
+- name: Disable cdr_radius
+  ansible.builtin.lineinfile:
     dest: /etc/asterisk/modules.conf
     line: 'noload => cdr_radius.so'
     regexp: '^noload => cdr_radius\.so'
     insertafter: 'autoload='
-- name: set extensions.conf
-  template:
+- name: Set extensions.conf
+  ansible.builtin.template:
     src: extensions.j2
     dest: /etc/asterisk/extensions.conf
-    mode: 0640
-    backup: yes
+    mode: '0640'
+    backup: true
     owner: asterisk
     group: asterisk
-- name: set extensions.ael
-  template:
+- name: Set extensions.ael
+  ansible.builtin.template:
     src: extensions_ael.j2
     dest: /etc/asterisk/extensions.ael
     mode: 0640
-    backup: yes
+    backup: true
     owner: asterisk
     group: asterisk
   notify:
     - reload asterisk
-- name: nrpe_local.conf
-  template:
+- name: Nrpe_local.conf
+  ansible.builtin.template:
     src: nrpe_voip.j2
     dest: /etc/nagios/nrpe_local.cfg
   notify:
     - reload nagios-nrpe-server
-- block:
-  - name: install rsyslog
-    apt:
-      pkg: rsyslog
-      state: present
-      install_recommends: no
-  - name: create conf rsyslog
-    blockinfile:
-      path: /etc/rsyslog.conf
-      backup: yes
-      insertafter: "WorkDirectory"
-      marker: "# {mark} Fixes for ram"
-      block: |
-        $QueueType Disk
-        $QueueMaxFileSize 1m
-    notify:
-      - reload rsyslog
-- name: interfaces
-  debug:
+- name: Rsyslog block
+  block:
+    - name: Install rsyslog
+      ansible.builtin.apt:
+        pkg: rsyslog
+        state: present
+        install_recommends: false
+    - name: Create conf rsyslog
+      ansible.builtin.blockinfile:
+        path: /etc/rsyslog.conf
+        backup: true
+        insertafter: "WorkDirectory"
+        marker: "# {mark} Fixes for ram"
+        block: |
+          $QueueType Disk
+          $QueueMaxFileSize 1m
+      notify:
+        - reload rsyslog
+- name: Interfaces
+  ansible.builtin.debug:
     msg: address is {{ ansible_default_ipv4.address }}
-- block:
-  - name: install openvpn package
-    apt:
-      name: openvpn
-      state: present
-      install_recommends: no
-  - name: create certs directory
-    file:
-      path: /etc/openvpn/certs
-      state: directory
-      mode: '0755'
-  - name: update owner of directory
-    file:
-      path: /errata/var/log/asterisk
-      state: directory
-      mode: '0755'
-      owner: asterisk
-      group: asterisk
-  - name: create directories on main server
-    file:
-      path: /etc/systemd/system/openvpn@client_udp.service.d
-      state: directory
-      mode: '0755'
-    when: server_env is defined and server_env == "main"
-  - name: create override.conf on main server
-    template:
-      src: ovpn_voip_override.j2
-      dest: /etc/systemd/system/openvpn@client_udp.service.d/override.conf
-    when: server_env is defined and server_env == "main"
-  - name: create openvpn config on main server
-    template:
-      src: ovpn_udp.j2
-      dest: /etc/openvpn/client_udp.conf
-    when: server_env is defined and server_env == "main"
-  - name: create directories on reserv server
-    file:
-      path: /etc/systemd/system/openvpn@client_tcp.service.d
-      state: directory
-      mode: '0755'
-    when: server_env is defined and server_env == "reserv"
-  - name: create override.conf on reserv server
-    template:
-      src: ovpn_voip_override.j2
-      dest: /etc/systemd/system/openvpn@client_tcp.service.d/override.conf
-    when: server_env is defined and server_env == "reserv"
-  - name: create openvpn config on reserv server
-    template:
-      src: ovpn_tcp.j2
-      dest: /etc/openvpn/client_tcp.conf
-    when: server_env is defined and server_env == "reserv"
-  - name: configure nrpe
-    include: nrpe.yml
-    tags: nrpe
-  - name: configure firewall
-    include: firewall.yml
-    tags: firewall
-  - name: add cron tasks
-    include: cron.yml
-    tags: cron
+- name: Configuration VoIP server
+  block:
+    - name: Install openvpn package
+      ansible.builtin.apt:
+        name: openvpn
+        state: present
+        install_recommends: false
+    - name: Create certs directory
+      ansible.builtin.file:
+        path: /etc/openvpn/certs
+        state: directory
+        mode: '0755'
+    - name: Update owner of directory
+      ansible.builtin.file:
+        path: /errata/var/log/asterisk
+        state: directory
+        mode: '0755'
+        owner: asterisk
+        group: asterisk
+    - name: Create directories on main server
+      ansible.builtin.file:
+        path: /etc/systemd/system/openvpn@client_udp.service.d
+        state: directory
+        mode: '0755'
+      when: server_env is defined and server_env == "main"
+    - name: Create override.conf on main server
+      ansible.builtin.template:
+        src: ovpn_voip_override.j2
+        dest: /etc/systemd/system/openvpn@client_udp.service.d/override.conf
+      when: server_env is defined and server_env == "main"
+    - name: Create openvpn config on main server
+      ansible.builtin.template:
+        src: ovpn_udp.j2
+        dest: /etc/openvpn/client_udp.conf
+      when: server_env is defined and server_env == "main"
+    - name: Create directories on reserv server
+      ansible.builtin.file:
+        path: /etc/systemd/system/openvpn@client_tcp.service.d
+        state: directory
+        mode: '0755'
+      when: server_env is defined and server_env == "reserv"
+    - name: Create override.conf on reserv server
+      ansible.builtin.template:
+        src: ovpn_voip_override.j2
+        dest: /etc/systemd/system/openvpn@client_tcp.service.d/override.conf
+      when: server_env is defined and server_env == "reserv"
+    - name: Create openvpn config on reserv server
+      ansible.builtin.template:
+        src: ovpn_tcp.j2
+        dest: /etc/openvpn/client_tcp.conf
+      when: server_env is defined and server_env == "reserv"
+    - name: Configure nrpe
+      ansible.legacy.include_tasks: Nrpe.yml
+      tags: nrpe
+    - name: Configure firewall
+      ansible.legacy.include_tasks: firewall.yml
+      tags: firewall
+    - name: Add cron tasks
+      ansible.legacy.include_tasks: cron.yml
+      tags: cron

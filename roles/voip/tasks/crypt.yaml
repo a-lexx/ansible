@@ -1,15 +1,16 @@
 ---
-- name: Create container file
-  block:
-    - name: Create cont file
-      ansible.builtin.command:
-        "{{ item }}"
-      with_items:
-        - truncate -s '{{ contsize }}'G /data.img
-        - fallocate -n -l '{{ contsize }}'GiB /data.img
-  rescue:
-    - name: Create cont file
-      ansible.builtin.command: fallocate -l '{{ contsize }}'GiB /data.img
+- name: Create container file fixed size (512 MB)
+  community.general.filesize:
+    path: /data.img
+    size: 512.0 MiB
+    source: /dev/urandom
+  when: CRYPT_SIZE is undefined or CRYPT_SIZE != 0
+- name: Create container file with set size
+  community.general.filesize:
+    path: /data.img
+    size: "{{ CRYPT_SIZE }}GB"
+    source: /dev/urandom
+  when: CRYPT_SIZE is defined or CRYPT_SIZE|length > 0
 - name: Add loop module
   community.general.modprobe:
     name: loop
@@ -21,17 +22,18 @@
   ansible.builtin.apt:
     pkg: cryptsetup
     state: present
-    install_recommends: no
+    install_recommends: false
     update_cache: true
 - name: Create errata countainer
-  luks_device:
+  community.crypto.luks_device:
+    label: "data"
     device: "/dev/loop0"
     state: "opened"
-    type: luks1
-    cipher: 'aes-xts-plain64'
+    type: luks2
+    cipher: "aes-xts-plain64"
     hash: "sha256"
     name: "data"
-    passphrase: "{{ passcont }}"
+    passphrase: "{{ CRYPT_PASSWD }}"
 - name: Add ext4 module
   community.general.modprobe:
     name: ext4
@@ -39,12 +41,12 @@
   register: ext4
   ignore_errors: true
 - name: Create FS ext4
-  filesystem:
+  community.general.filesystem:
     fstype: ext4
     dev: /dev/mapper/data
   when: ext4 is succeeded
 - name: Create FS ext3
-  filesystem:
+  community.general.filesystem:
     fstype: ext3
     dev: /dev/mapper/data
   when: ext4 is failed
@@ -57,19 +59,19 @@
     path: '/errata/'
     state: directory
     mode: 0755
-- name: Mount errata
-  mount:
+- name: Mount errata directory
+  ansible.posix.mount:
     name: /errata
     src: /dev/mapper/data
     opts: "noauto,noatime,nodiratime"
-    state: mounted
     fstype: ext4
+    state: mounted
 - name: Create dirs
   ansible.builtin.file:
     path: '/errata/{{ item }}'
     state: directory
     mode: 0755
-    recurse: yes
+    recurse: true
   with_items:
     - var/log/asterisk
     - etc/asterisk
@@ -78,7 +80,7 @@
     src: '/errata/etc/{{ item }}'
     dest: '/etc/{{ item }}'
     state: link
-    force: yes
+    force: true
   with_items:
     - asterisk
 - name: Link configs
@@ -86,6 +88,6 @@
     src: /errata/var/{{ item.from }}
     dest: /var/{{ item.path }}
     state: link
-    force: yes
+    force: true
   with_items:
     - { from: log/asterisk, path: log/asterisk }
