@@ -1,9 +1,9 @@
 ---
 - name: Debian distr
-  ansible.builtin.include_tasks: debian.yml
+  ansible.legacy.include_tasks: debian.yml
   when: ansible_distribution == 'Debian'
   tags: package
 - name: Ubuntu distr
-  ansible.builtin.include_tasks: ubuntu.yml
+  ansible.legacy.include_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
   tags: package
