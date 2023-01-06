@@ -1,7 +1,12 @@
 name: Ansible Lint
-on: [push, pull_request]
-  branches-ignore:
-    - dev
+on:
+  push:
+    branches-ignore:
+      - dev
+  pull_request:
+    branches:
+      - dev
+    types: [closed]
 jobs:
   build:
     runs-on: ubuntu-latest
