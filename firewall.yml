@@ -1,0 +1,6 @@
+---
+- name: Configure nftables on instance
+  hosts: all
+  remote_user: root
+  roles:
+    - { role: firewall, tags: firewall }
