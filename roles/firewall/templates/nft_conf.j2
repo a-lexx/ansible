@@ -1,0 +1,45 @@
+{% block head %}
+#!/usr/sbin/nft -f
+flush ruleset
+table ip filter {
+    chain input {
+        type filter hook input priority filter; policy drop;
+        iifname "lo" counter accept comment "accept local trafic"
+        ct state invalid counter drop comment "drop invalid trafic"
+        ct state established,related counter accept comment "accept related and established trafic"
+        meta l4proto icmp icmp type echo-request limit rate over 10/second burst 4 packets counter drop comment "No ping floods"
+        meta l4proto icmp icmp type { destination-unreachable, router-solicitation, router-advertisement, time-exceeded, parameter-problem } accept comment "Accept ICMP"
+        tcp dport ssh ct state new limit rate 5/minute counter accept comment "Avoid brute force on SSH"
+        tcp dport {http, https} counter accept comment "accept web"
+        #log prefix "[nftables] Inbound Denied: " counter drop
+        counter comment "all in input chain"
+    }
+    chain forward {
+        type filter hook forward priority filter; policy drop;
+        ct state invalid counter drop comment "drop invalid trafic"
+        ct state established,related counter accept comment "accept related and established trafic"
+        #log prefix "[nftables] Forward Denied: " counter drop
+        counter comment "all in forward chain"
+    }
+    chain output {
+        type filter hook output priority filter; policy accept;
+        oifname "lo" counter accept comment "accept local trafic"
+        ct state invalid counter drop comment "drop invalid trafic"
+        ct state established,related counter accept comment "accept related and established trafic"
+        #log prefix "[nftables] Outbound Denied: " counter drop
+        counter comment "all in output chain"
+    }
+}
+table ip nat {
+    chain prerouting {
+        type nat hook prerouting priority dstnat; policy drop;
+        #log prefix "[nftables] Prerouting Denied: " counter drop
+        counter comment "all in prerouting chain"
+    }
+    chain postrouting {
+        type nat hook postrouting priority srcnat; policy drop;
+        #log prefix "[nftables] Postrouting Denied: " counter drop
+        counter comment "all in postrouting chain"
+    }
+}
+{% endblock %}

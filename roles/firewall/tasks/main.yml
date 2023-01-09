@@ -1,0 +1,29 @@
+---
+- name: Install nftables ans sshguard
+  ansible.builtin.apt:
+    pkg: ['nftables', 'sshguard']
+    state: latest
+    update_cache: true
+- name: Config nftables
+  ansible.builtin.template:
+    src: nft_conf.j2
+    dest: /etc/nftables.conf
+    backup: true
+    mode: '0755'
+- name: Enable and start nftables
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    masked: false
+    name: nftables
+  register: nftables
+  notify:
+    - Purge iptables
+- name: Enable and start sshguard
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    masked: false
+    name: sshguard
