@@ -3,8 +3,8 @@
   hosts: all
   remote_user: root
   vars_prompt:
-  - name: "FQDN"
-    prompt: 'Domain name'
-    private: false
+    - name: "FQDN"
+      prompt: 'Domain name'
+      private: false
   roles:
     - role: bind
