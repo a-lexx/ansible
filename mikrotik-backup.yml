@@ -1,0 +1,33 @@
+---
+- name: Backup mikrotik (ROS)
+  hosts: mikrotik
+  vars_prompt:
+    - name: "ROS_VERSION"
+      prompt: "Enter ROS version"
+      private: false
+      default: "7.7"
+  connection: network_cli
+  gather_facts: false
+  tasks:
+    - name: Create backup directory
+      ansible.builtin.file:
+        path: '~/git/configs/mikrotik/v{{ ROS_VERSION}}'
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+    - name: Backup create
+      community.routeros.command:
+        commands: /system backup save name={{ inventory_hostname }}
+    - name: Backup-resource create
+      community.routeros.command:
+        commands: /export file={{ inventory_hostname }}.rsc
+    - name: Get backup
+      ansible.netcommon.net_get:
+        src: "{{ inventory_hostname }}.backup"
+        dest: "~/git/configs/mikrotik/v{{ ROS_VERSION}}/{{ inventory_hostname }}.backup"
+        protocol: sftp
+    - name: Get resource backup
+      ansible.netcommon.net_get:
+        src: "{{ inventory_hostname }}.rsc"
+        dest: "~/git/configs/mikrotik/v{{ ROS_VERSION}}/{{ inventory_hostname }}.rsc"
+        protocol: sftp
