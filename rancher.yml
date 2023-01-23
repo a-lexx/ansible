@@ -2,14 +2,14 @@
 - name: Setup and configure Rancher suse
   hosts: all
   vars_prompt:
-  - name: "USER"
-    prompt: "Enter user name"
-    private: false
-    default: ubuntu
-  - name: "FQDN"
-    prompt: 'Domain name'
-    private: false
-    default: rancher.com
+    - name: "USER"
+      prompt: "Enter user name"
+      private: false
+      default: ubuntu
+    - name: "FQDN"
+      prompt: 'Domain name'
+      private: false
+      default: rancher.com
   roles:
     - { role: upgrade-dist, tags: update }
     - { role: rancher, tags: setup }
