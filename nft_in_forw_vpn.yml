@@ -3,9 +3,9 @@
   hosts: all
   remote_user: root
   vars_prompt:
-  - name: "OUTPUT_SERVER"
-    prompt: "Enter output server IP"
-    private: false
+    - name: "OUTPUT_SERVER"
+      prompt: "Enter output server IP"
+      private: false
   roles:
     - { role: upgrade-dist, tags: update }
     - { role: nft_in_vpn, tags: nftables }
