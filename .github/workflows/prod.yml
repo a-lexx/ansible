@@ -1,7 +1,7 @@
 name: Ansible Lint PR
 on:
   pull_request:
-    branches: [dev]
+    branches: [master]
     types: [closed]
 jobs:
   build:
