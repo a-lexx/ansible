@@ -1,0 +1,57 @@
+---
+- name: Get public IP
+  community.general.ipify_facts:
+- name: Create openvpn ovpn file directory
+  ansible.builtin.file:
+    path: "{{ openvpn_ovpn_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Create openvpn ovpn file directory
+  ansible.builtin.file:
+    path: "{{ openvpn_key_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Register server ca key
+  ansible.builtin.slurp:
+    src: "/etc/openvpn/server/easy-rsa/pki/ca.crt"
+  register: ca_cert
+
+- name: Register client certs
+  ansible.builtin.slurp:
+    src: "/etc/openvpn/server/easy-rsa/pki/issued/{{ item }}.crt"
+  with_items:
+    - "{{ clients }}"
+  register: client_certs
+
+- name: Register client keys
+  ansible.builtin.slurp:
+    src: "/etc/openvpn/server/easy-rsa/pki/private/{{ item }}.key"
+  with_items:
+    - "{{ clients }}"
+  register: client_keys
+
+- name: Register tls-crypt key
+  ansible.builtin.slurp:
+    src: "/etc/openvpn/server/tc.key"
+  register: tls_crypt
+
+- name: Print returned information encoded
+  ansible.builtin.debug:
+    msg: "{{ tls_crypt['content'] }}"
+
+- name: Print returned information {{ inventory_hostname[:49] }}
+  ansible.builtin.debug:
+    msg: "{{ tls_crypt['content'] | b64decode }}"
+
+- name: Generate client config
+  ansible.builtin.template:
+    src: udp-client.j2
+    dest: "{{ openvpn_ovpn_dir }}/{{ item.0.item }}.ovpn"
+    owner: root
+    group: root
+    mode: 0400
+  with_together:
+    - "{{ client_certs.results }}"
+    - "{{ client_keys.results }}"

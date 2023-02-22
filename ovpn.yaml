@@ -1,0 +1,17 @@
+---
+- name: Configure OpenVPN server
+  hosts: all
+#  remote_user: root
+  vars_prompt:
+    - name: "openvpn_proto"
+      prompt: "Enter protocol"
+      private: "no"
+      default: "udp"
+  vars_prompt:
+    - name: "openvpn_port"
+      prompt: "Enter port"
+      private: "no"
+      default: "1194"
+  roles:
+    - { role: disable-ipv6, tags: sysctl }
+    - { role: ovpn, tags: tunnel }

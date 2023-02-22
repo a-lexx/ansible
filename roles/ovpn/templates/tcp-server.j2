@@ -1,0 +1,32 @@
+{% block head %}
+local {{ ansible_default_ipv4.address }}
+port {{ openvpn_port }}
+proto tcp
+dev tun
+ca ca.crt
+cert server.crt
+key server.key
+dh dh.pem
+auth SHA512
+tls-crypt tc.key
+topology subnet
+server 10.6.0.0 255.255.255.0
+{% if openvpn_redirect_gateway|bool %}
+push "redirect-gateway def1 bypass-dhcp"
+{% else %}
+#push "redirect-gateway def1 bypass-dhcp"
+{% endif %}
+ifconfig-pool-persist ipp-{{ openvpn_proto }}.txt
+push "dhcp-option DNS 1.1.1.1"
+keepalive 10 120
+cipher AES-256-CBC
+user nobody
+group nogroup
+persist-key
+persist-tun
+verb 3
+crl-verify crl.pem
+client-config-dir /etc/openvpn/ccd
+log /var/log/ovpn.log
+status /var/log/ovpn-status.log
+{% endblock %}

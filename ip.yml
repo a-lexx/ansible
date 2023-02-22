@@ -4,7 +4,7 @@
   tasks:
     - name: Get public IP
       community.general.ipify_facts:
-      register: IP
-    - name: Print public IP
+      #register: IP
+    - name: Public IP is
       ansible.builtin.debug:
         msg: "{{ ipify_public_ip }}"
