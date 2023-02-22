@@ -103,6 +103,8 @@
     - /etc/nginx/certs/{{ FQDN }}
     - /etc/apache2/certs
     - /etc/apache2/certs/{{ FQDN }}
+    - /etc/apache2/sites-available
+    - /etc/apache2/conf-available
 - name: Create Diffie-Helman key
   community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem

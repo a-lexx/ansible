@@ -1,0 +1,3 @@
+openssl_package_name: openssl
+openvpn_package_name: openvpn
+python_firewall_package_name: python-firewall

@@ -1,0 +1,25 @@
+client
+dev tun
+proto {{ openvpn_proto }}
+remote {{ ipify_public_ip }} {{ openvpn_port }}
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+remote-cert-tls server
+auth SHA512
+cipher AES-256-CBC
+ignore-unknown-option block-outside-dns
+verb 3
+<ca>
+{{ ca_cert.content|b64decode }}
+</ca>
+<cert>
+{{ item.0.content|b64decode }}
+</cert>
+<key>
+{{ item.1.content|b64decode }}
+</key>
+<tls-crypt>
+{{ tls_crypt.content|b64decode }}
+</tls-crypt>
