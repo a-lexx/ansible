@@ -13,15 +13,8 @@
 ~/bin/acme.sh --set-default-ca --server letsencrypt
 ~/bin/acme.sh --issue -d {{ FQDN }} -d www.{{ FQDN }} -w ~/letsencrypt && \
 #~/bin/acme.sh --issue --dns dns_cf -d {{ FQDN }} -d '*.{{ FQDN }}' && \
-# 4 apache2
-~/bin/acme.sh --install-cert -d {{ FQDN }} \
-#        --cert-file      /etc/apache2/certs/{{ FQDN }}/cert.pem  \
-#        --key-file       /etc/apache2/certs/{{ FQDN }}/key.pem  \
-#        --fullchain-file /etc/apache2/certs/{{ FQDN }}/fullchain.pem \
-#        --reloadcmd      "sudo /usr/bin/systemctl reload apache2"
-# 4 nginx
+~/bin/acme.sh --install-cert -d {{ FQDN }} -d www.{{ FQDN }} \
         --key-file       /etc/nginx/certs/{{ FQDN }}/key.pem  \
         --fullchain-file /etc/nginx/certs/{{ FQDN }}/fullchain.pem \
         --reloadcmd      "sudo /usr/bin/systemctl reload nginx"
-
 {% endblock %}
