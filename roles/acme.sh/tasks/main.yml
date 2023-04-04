@@ -109,12 +109,12 @@
   ansible.builtin.template:
     src: acme.j2
     dest: /etc/nginx/le.conf
-    mode: 0600
+    mode: '0600'
 - name: Disable server tokens
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
     regexp: '# server_tokens off'
-    line: "	server_tokens off;"
+    line: "\tserver_tokens off;"
 - name: Change nginx user
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
@@ -128,14 +128,14 @@
   ansible.builtin.template:
     src: site.j2
     dest: /etc/nginx/sites-available/{{ FQDN }}.conf
-    mode: 0600
+    mode: '0600'
     backup: 'True'
+  notify:
+    - Reload nginx
 - name: Enable virtual host
   ansible.builtin.file:
     src: ../sites-available/{{ FQDN }}.conf
     dest: /etc/nginx/sites-enabled/{{ FQDN }}.conf
     state: link
     force: yes
-    mode: 0600
-  notify:
-    - Reload nginx
+    mode: '0600'
