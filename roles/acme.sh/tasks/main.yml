@@ -1,7 +1,7 @@
 ---
 - name: Install packages
   ansible.builtin.apt:
-    pkg: ['curl', 'openssl', 'sudo', 'screen', 'socat', 'nginx-full']
+    pkg: ['curl', 'openssl', 'sudo', 'screen', 'nginx', 'nginx-full']
     state: latest
     install_recommends: false
     update_cache: 'True'
@@ -101,53 +101,41 @@
   with_items:
     - /etc/nginx/certs
     - /etc/nginx/certs/{{ FQDN }}
-    - /etc/apache2/certs
-    - /etc/apache2/certs/{{ FQDN }}
-    - /etc/apache2/sites-available
-    - /etc/apache2/conf-available
 - name: Create Diffie-Helman key
   community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
     size: 2048
-- name: Create link to script
-  ansible.builtin.file:
-    src: /etc/nginx/certs/dhparam.pem
-    dest: /etc/apache2/certs/dhparam.pem
-    state: link
-    mode: '0750'
 - name: Acme in nginx
   ansible.builtin.template:
     src: acme.j2
     dest: /etc/nginx/le.conf
     mode: '0600'
-  notify:
-    - Reload nginx
-- name: Create virtual host
-  ansible.builtin.template:
-    src: vhost_apache.j2
-    dest: /etc/apache2/sites-available/{{ FQDN }}.conf
-    mode: '0600'
-- name: Acme in apache2
-  ansible.builtin.template:
-    src: le.j2
-    dest: /etc/apache2/conf-available/le.conf
-    mode: '0600'
-  notify:
-    - Reload apache
-- name: Enable le.conf
+- name: Disable server tokens
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '# server_tokens off'
+    line: "\tserver_tokens off;"
+- name: Change nginx user
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^user '
+    line: "user {{ USER }};"
+- name: Remove default config
   ansible.builtin.file:
-    src: ../conf-available/le.conf
-    dest: /etc/apache2/conf-enabled/le.conf
-    state: link
-    mode: '0750'
+    path: /etc/nginx/sites-enabled/default
+    state: absent
 - name: Create templ config
   ansible.builtin.template:
     src: site.j2
     dest: /etc/nginx/sites-available/{{ FQDN }}.conf
     mode: '0600'
     backup: 'True'
+  notify:
+    - Reload nginx
 - name: Enable virtual host
   ansible.builtin.file:
     src: ../sites-available/{{ FQDN }}.conf
-    dest: /etc/apache2/sites-enabled/{{ FQDN }}.conf
+    dest: /etc/nginx/sites-enabled/{{ FQDN }}.conf
+    state: link
+    force: yes
     mode: '0600'
