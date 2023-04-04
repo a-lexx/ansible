@@ -1,15 +1,18 @@
-upstream php {
-    server unix:/run/php/php7.4-fpm.sock;
-}
+#upstream php {
+#    server unix:/run/php/php7.4-fpm.sock;
+#}
 
 server {
     listen 80;
+    server_name www.{{ FQDN }};
     server_name {{ FQDN }};
 
     include le.conf;
 
     location / {
-        return 301 https://$host$request_uri;
+        if ($host = {{ FQDN }}) {
+            return 301 https://$host$request_uri;
+        }
     }
 }
 
@@ -17,7 +20,11 @@ server {
 #    listen 443 ssl;
 #    server_name {{ FQDN }};
 #
-#    #index index.php index.html index.htm;
+#    if ($host != {{ FQDN }}) {
+#        return 444;
+#    }
+#
+#    index index.php index.html index.htm;
 #
 #    root /var/www/html;
 #    access_log /var/log/nginx/{{ FQDN }}-access.log;
@@ -27,7 +34,6 @@ server {
 #
 #    ssl_certificate /etc/nginx/certs/{{ FQDN }}/fullchain.pem;
 #    ssl_certificate_key /etc/nginx/certs/{{ FQDN }}/key.pem;
-#
 #    ssl_session_cache shared:le_nginx_SSL:10m;
 #    ssl_session_timeout 1440m;
 #    ssl_session_tickets off;
@@ -40,12 +46,6 @@ server {
 #    add_header Referrer-Policy "no-referrer-when-downgrade" always;
 #    add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
 #    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-#
-#    location /nginx_status {
-#        stub_status;
-#        allow  159.224.176.54;
-#        deny all;
-#    }
 #
 #    location / {
 #        proxy_pass http://localhost:3000;
@@ -66,5 +66,10 @@ server {
 #        add_header Content-Type text/plain;
 #        return 200 'User-agent: *\nDisallow: /\n';
 #        log_not_found off; access_log off; allow all;
+#    }
+#    location /nginx_status {
+#        stub_status;
+#        allow  159.224.176.54;
+#        deny all;
 #    }
 #}

@@ -1,0 +1,15 @@
+---
+- name: Configure wp on node
+  hosts: all
+  vars_prompt:
+    - name: "USER"
+      prompt: "Enter user name"
+      private: "no"
+      default: "runner"
+    - name: "FQDN"
+      prompt: "Domain name"
+      private: "no"
+      default: "example.com"
+  roles:
+#    - { role: upgrade-dist, tags: update }
+    - { role: wp, tags: web }
