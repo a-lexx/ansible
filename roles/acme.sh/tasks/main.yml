@@ -114,24 +114,24 @@
     src: /etc/nginx/certs/dhparam.pem
     dest: /etc/apache2/certs/dhparam.pem
     state: link
-    mode: 0750
+    mode: '0750'
 - name: Acme in nginx
   ansible.builtin.template:
     src: acme.j2
     dest: /etc/nginx/le.conf
-    mode: 0600
+    mode: '0600'
   notify:
     - Reload nginx
 - name: Create virtual host
   ansible.builtin.template:
     src: vhost_apache.j2
     dest: /etc/apache2/sites-available/{{ FQDN }}.conf
-    mode: 0600
+    mode: '0600'
 - name: Acme in apache2
   ansible.builtin.template:
     src: le.j2
     dest: /etc/apache2/conf-available/le.conf
-    mode: 0600
+    mode: '0600'
   notify:
     - Reload apache
 - name: Enable le.conf
@@ -139,15 +139,15 @@
     src: ../conf-available/le.conf
     dest: /etc/apache2/conf-enabled/le.conf
     state: link
-    mode: 0750
+    mode: '0750'
 - name: Create templ config
   ansible.builtin.template:
     src: site.j2
     dest: /etc/nginx/sites-available/{{ FQDN }}.conf
-    mode: 0600
+    mode: '0600'
     backup: 'True'
 - name: Enable virtual host
   ansible.builtin.file:
     src: ../sites-available/{{ FQDN }}.conf
     dest: /etc/apache2/sites-enabled/{{ FQDN }}.conf
-    mode: 0600
+    mode: '0600'
