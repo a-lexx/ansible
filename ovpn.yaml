@@ -7,7 +7,6 @@
       prompt: "Enter protocol"
       private: "no"
       default: "udp"
-  vars_prompt:
     - name: "openvpn_port"
       prompt: "Enter port"
       private: "no"
