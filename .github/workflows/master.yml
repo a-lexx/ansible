@@ -1,4 +1,4 @@
-name: Ansible Lint PR from dev
+name: Ansible lint PR (production)
 on:
   pull_request:
     branches: [master]

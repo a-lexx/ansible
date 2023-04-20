@@ -1,7 +1,7 @@
-name: Ansible Lint Development
+name: Ansible lint (development)
 on:
   push:
-    branch: [dev]
+    branches: [dev]
 jobs:
   build:
     runs-on: ubuntu-latest
