@@ -7,10 +7,6 @@
       prompt: "Enter user name"
       private: "no"
       default: "ubuntu"
-    - name: "FQDN"
-      prompt: "Domain name"
-      private: "no"
-      default: "wp.fulcrum.rocks"
   roles:
     - { role: root-config, tags: config }
     - { role: upgrade-dist, tags: config }

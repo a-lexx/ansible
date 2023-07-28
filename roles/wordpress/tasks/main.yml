@@ -11,9 +11,9 @@
     state: latest
     install_recommends: false
     update_cache: 'True'
-- name: Set a hostname "{{ FQDN }}"
+- name: Set a hostname "{{ inventory_hostname }}"
   ansible.builtin.hostname:
-    name: "{{ FQDN }}"
+    name: "{{ inventory_hostname }}"
     use: systemd
 - name: Create user {{ USER }}
   ansible.builtin.user:
@@ -125,7 +125,7 @@
     mode: 0755
   with_items:
     - /etc/nginx/certs
-    - /etc/nginx/certs/{{ FQDN }}
+    - /etc/nginx/certs/{{ inventory_hostname }}
 - name: Create Diffie-Helman key
   community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
@@ -153,7 +153,7 @@
 - name: Create templ config
   ansible.builtin.template:
     src: virtual_host.j2
-    dest: /etc/nginx/sites-available/{{ FQDN }}.conf
+    dest: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
     mode: '0600'
     backup: 'True'
 - name: Change php user
@@ -167,8 +167,8 @@
     state: restarted
 - name: Enable virtual host
   ansible.builtin.file:
-    src: ../sites-available/{{ FQDN }}.conf
-    dest: /etc/nginx/sites-enabled/{{ FQDN }}.conf
+    src: ../sites-available/{{ inventory_hostname }}.conf
+    dest: /etc/nginx/sites-enabled/{{ inventory_hostname }}.conf
     state: link
     force: yes
     mode: '0600'
@@ -179,11 +179,11 @@
 - name: Configure TLS
   ansible.builtin.command:
     cmd: sudo -u "{{ USER }}" /home/{{ USER }}/bin/renew.sh
-    creates: /home/{{ USER }}/.acme.sh/{{ FQDN }}_ecc/{{ FQDN }}.key
+    creates: /home/{{ USER }}/.acme.sh/{{ inventory_hostname }}_ecc/{{ inventory_hostname }}.key
 - name: Create templ config
   ansible.builtin.template:
     src: virtual_host_tls.j2
-    dest: /etc/nginx/sites-available/{{ FQDN }}.conf
+    dest: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
     mode: '0600'
     backup: 'True'
 - name: Reload nginx

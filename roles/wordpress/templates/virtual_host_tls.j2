@@ -4,13 +4,13 @@ upstream php {
 
 server {
     listen 80;
-    server_name www.{{ FQDN }};
-    server_name {{ FQDN }};
+    server_name www.{{ inventory_hostname }};
+    server_name {{ inventory_hostname }};
 
     include le.conf;
 
     location / {
-        if ($host = {{ FQDN }}) {
+        if ($host = {{ inventory_hostname }}) {
             return 301 https://$host$request_uri;
         }
     }
@@ -18,22 +18,22 @@ server {
 
 server {
     listen 443 ssl;
-    server_name {{ FQDN }};
+    server_name {{ inventory_hostname }};
 
-    if ($host != {{ FQDN }}) {
+    if ($host != {{ inventory_hostname }}) {
         return 444;
     }
 
     index index.php index.html index.htm;
 
     root /var/www/wordpress;
-    access_log /var/log/nginx/{{ FQDN }}-access.log;
-    error_log /var/log/nginx/{{ FQDN }}-error.log;
+    access_log /var/log/nginx/{{ inventory_hostname }}-access.log;
+    error_log /var/log/nginx/{{ inventory_hostname }}-error.log;
     resolver 1.1.1.1 8.8.8.8 ipv6=off valid=30s;
     server_tokens off;
 
-    ssl_certificate /etc/nginx/certs/{{ FQDN }}/fullchain.pem;
-    ssl_certificate_key /etc/nginx/certs/{{ FQDN }}/key.pem;
+    ssl_certificate /etc/nginx/certs/{{ inventory_hostname }}/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/{{ inventory_hostname }}/key.pem;
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
     ssl_session_tickets off;

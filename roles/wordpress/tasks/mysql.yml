@@ -5,7 +5,7 @@
     state: latest
     install_recommends: false
     update_cache: 'True'
-- name: Create a wp database 'wordpress'
+- name: Create a wp database "{{ inventory_hostname }}"
   community.mysql.mysql_db:
     name: wordpress
     state: present
