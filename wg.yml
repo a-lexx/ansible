@@ -1,0 +1,16 @@
+---
+- name: Configure WireGuard server
+  hosts: all
+#  remote_user: root
+  vars_prompt:
+    - name: "openvpn_proto"
+      prompt: "Enter protocol"
+      private: "no"
+      default: "udp"
+    - name: "openvpn_port"
+      prompt: "Enter port"
+      private: "no"
+      default: "52180"
+  roles:
+    - { role: disable-ipv6, tags: sysctl }
+    - { role: wireguard, tags: vpn }

@@ -5,13 +5,13 @@
     - name: "ROS_VERSION"
       prompt: "Enter ROS version"
       private: false
-      default: "7.8"
+      default: "7.10"
   connection: ansible.netcommon.network_cli
   gather_facts: false
   tasks:
     - name: Create backup directory
       ansible.builtin.file:
-        path: '~/git/configs/mikrotik/v{{ ROS_VERSION}}'
+        path: '~/git/configs/mikrotik/v{{ ROS_VERSION }}'
         state: directory
         mode: '0755'
       delegate_to: localhost
@@ -24,8 +24,8 @@
     - name: Get backup
       ansible.netcommon.net_get:
         src: "{{ inventory_hostname }}.backup"
-        dest: "~/git/configs/mikrotik/v{{ ROS_VERSION}}/{{ inventory_hostname }}.backup"
+        dest: "~/git/configs/mikrotik/v{{ ROS_VERSION }}/{{ inventory_hostname }}.backup"
     - name: Get resource backup
       ansible.netcommon.net_get:
         src: "{{ inventory_hostname }}.rsc"
-        dest: "~/git/configs/mikrotik/v{{ ROS_VERSION}}/{{ inventory_hostname }}.rsc"
+        dest: "~/git/configs/mikrotik/v{{ ROS_VERSION }}/{{ inventory_hostname }}.rsc"

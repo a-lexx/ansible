@@ -1,0 +1,32 @@
+---
+- name: Create salt file
+  ansible.builtin.get_url:
+    url: https://api.wordpress.org/secret-key/1.1/salt/
+    dest: /var/www/wordpress/salt.php
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+- name: Update salt file
+  ansible.builtin.lineinfile:
+    path: /var/www/wordpress/salt.php
+    regexp: '^\<\?php'
+    line: '<?php'
+    insertbefore: '^define'
+    firstmatch: yes
+- name: Create credential file
+  ansible.builtin.template:
+    src: env_php.j2
+    dest: /var/www/wordpress/.env.php
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: 0644
+- name: Create credential file
+  ansible.builtin.template:
+    src: wp-config.j2
+    dest: /var/www/wordpress/wp-config.php
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: 0644
+- name: Remove sample config
+  ansible.builtin.file:
+    path: /var/www/wordpress/wp-config-sample.php
+    state: absent
