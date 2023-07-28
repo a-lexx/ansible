@@ -1,0 +1,11 @@
+{% block head %}
+#!/usr/bin/env bash
+
+~/bin/acme.sh --upgrade
+~/bin/acme.sh --set-default-ca --server letsencrypt
+~/bin/acme.sh --issue -d {{ inventory_hostname }} -d www.{{ inventory_hostname }} -w ~/letsencrypt && \
+~/bin/acme.sh --install-cert -d {{ inventory_hostname }} -d www.{{ inventory_hostname }} \
+        --key-file       /etc/nginx/certs/{{ inventory_hostname }}/key.pem  \
+        --fullchain-file /etc/nginx/certs/{{ inventory_hostname }}/fullchain.pem \
+        --reloadcmd      "sudo /usr/bin/systemctl reload nginx"
+{% endblock %}

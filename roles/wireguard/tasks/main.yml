@@ -1,0 +1,12 @@
+---
+- name: Forarding enable
+  ansible.legacy.include_tasks: forward.yml
+  tags: sysctl
+- name: Debian distr
+  ansible.legacy.include_tasks: debian.yml
+  when: ansible_distribution == 'Debian'
+  tags: package
+- name: Ubuntu distr
+  ansible.legacy.include_tasks: ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+  tags: package

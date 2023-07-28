@@ -1,0 +1,38 @@
+---
+- name: Upgrade system
+  ansible.builtin.apt:
+    upgrade: dist
+    state: present
+    update_cache: true
+
+- name: Remove dependencies that are no longer required
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Remove useless packages from the cache
+  ansible.builtin.apt:
+    autoclean: true
+
+- name: Install packages
+  ansible.builtin.apt:
+    name: ['nftables', 'qrencode', 'wireguard']
+    state: latest
+    install_recommends: false
+
+- name: Create wg config
+  ansible.builtin.template:
+    src: wg.j2
+    dest: /etc/wireguard/wg0.conf
+    mode: 0644
+    backup: true
+  notify:
+    - Reload wireguard
+
+- name: Create firewall config
+  ansible.builtin.template:
+    src: nft.j2
+    dest: /etc/nftables.conf
+    mode: 0755
+    backup: true
+  notify:
+    - Reload firewall

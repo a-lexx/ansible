@@ -1,0 +1,13 @@
+---
+- name: Install and configure wordpress
+  hosts: all
+#  remote_user: root
+  vars_prompt:
+    - name: "USER"
+      prompt: "Enter user name"
+      private: "no"
+      default: "ubuntu"
+  roles:
+    - { role: root-config, tags: config }
+    - { role: upgrade-dist, tags: config }
+    - { role: wordpress, tags: wordpress }
