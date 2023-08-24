@@ -21,4 +21,4 @@
   ansible.builtin.template:
     dest: /etc/update-motd.d/11-fulcrum
     src: motd-script.j2
-    mode: 0755
+    mode: "0755"

@@ -1,5 +1,5 @@
 ansible==7.4.0
-ansible-lint==6.12.2
+ansible-lint==6.17.2
 jsondiff==2.0.0
 passlib==1.7.4
 PyYAML==5.4.1
