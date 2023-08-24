@@ -12,17 +12,17 @@
   ansible.builtin.template:
     src: bashrc.j2
     dest: /root/.bashrc
-    mode: 0644
+    mode: "0644"
     backup: true
 - name: Create vimrc
   ansible.builtin.template:
     src: vimrc.j2
     dest: /root/.vimrc
-    mode: 0644
+    mode: "0644"
     backup: true
 - name: Create screenrc
   ansible.builtin.template:
     src: screenrc.j2
     dest: /root/.screenrc
-    mode: 0644
+    mode: "0644"
     backup: true
