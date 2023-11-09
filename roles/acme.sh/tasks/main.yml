@@ -72,8 +72,8 @@
       PROMPT_COMMAND='history -a'
 - name: Create link to script
   ansible.builtin.file:
-    src: "/home/{{ USER }}/.acme.sh/acme.sh"
     dest: "/home/{{ USER }}/bin/acme.sh"
+    src: "../.acme.sh/acme.sh"
     state: link
     force: 'True'
     mode: "0750"
