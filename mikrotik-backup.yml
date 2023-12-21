@@ -5,7 +5,7 @@
     - name: "ROS_VERSION"
       prompt: "Enter ROS version"
       private: false
-      default: "7.11.2"
+      default: "7.13.1"
   connection: ansible.netcommon.network_cli
   gather_facts: false
   tasks:
