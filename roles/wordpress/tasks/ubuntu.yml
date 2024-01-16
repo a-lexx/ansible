@@ -5,6 +5,16 @@
     state: latest
     install_recommends: false
     update_cache: 'True'
+- name: Install php packages
+  ansible.builtin.apt:
+    pkg: ['php', 'php-fpm', 'php-mysql', 'php-gd', 'php-curl', 'php-dom', 'php-imagick', 'php-mbstring', 'php-zip', 'php-intl']
+    state: latest
+    install_recommends: false
+    update_cache: 'True'
+- name: Set a hostname "{{ inventory_hostname }}"
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+    use: systemd
 - name: Create user {{ USER }}
   ansible.builtin.user:
     name: "{{ USER }}"
@@ -12,7 +22,7 @@
     home: "/home/{{ USER }}"
     generate_ssh_key: 'True'
     ssh_key_type: ecdsa
-    ssh_key_bits: "384"
+    ssh_key_bits: 384
 - name: Create screenrc
   ansible.builtin.template:
     src: screenrc.j2
@@ -47,6 +57,21 @@
     owner: "{{ USER }}"
     group: "{{ USER }}"
     mode: "0755"
+- name: Download wordpress
+  ansible.builtin.get_url:
+    url: https://wordpress.org/latest.tar.gz
+    dest: "/tmp/latest.tar.gz"
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
+    mode: "0755"
+- name: Unpacked wordpress
+  ansible.builtin.unarchive:
+    src: /tmp/latest.tar.gz
+    dest: /var/www/
+    remote_src: true
+    creates: /var/www/wordpress
+    owner: "{{ USER }}"
+    group: "{{ USER }}"
 - name: Add env to bashrc
   ansible.builtin.blockinfile:
     path: "/home/{{ USER }}/.bashrc"
@@ -72,8 +97,8 @@
       PROMPT_COMMAND='history -a'
 - name: Create link to script
   ansible.builtin.file:
+    src: "/home/{{ USER }}/.acme.sh/acme.sh"
     dest: "/home/{{ USER }}/bin/acme.sh"
-    src: "../.acme.sh/acme.sh"
     state: link
     force: 'True'
     mode: "0750"
@@ -100,7 +125,7 @@
     mode: "0755"
   with_items:
     - /etc/nginx/certs
-    - /etc/nginx/certs/{{ FQDN }}
+    - /etc/nginx/certs/{{ inventory_hostname }}
 - name: Create Diffie-Helman key
   community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
@@ -109,33 +134,75 @@
   ansible.builtin.template:
     src: acme.j2
     dest: /etc/nginx/le.conf
-    mode: "0660"
+    mode: "0600"
 - name: Disable server tokens
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
     regexp: '# server_tokens off'
-    line: "\tserver_tokens off;"
+    line: "\tserver_tokens off;\n\tclient_max_body_size 2G;"
+    backrefs: 'True'
 - name: Change nginx user
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
     regexp: '^user '
     line: "user {{ USER }};"
+- name: Create htpasswd
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/htpasswd
+    line: 'ok:$apr1$2XUjYIpc$S4oo8s8k3K6oAioB2wOhv/'
+    create: true
+    mode: "0640"
 - name: Remove default config
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
     state: absent
 - name: Create templ config
   ansible.builtin.template:
-    src: site.j2
-    dest: /etc/nginx/sites-available/{{ FQDN }}.conf
-    mode: "0660"
+    src: virtual_host.j2
+    dest: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
+    mode: "0600"
     backup: 'True'
-  notify:
-    - Reload nginx
+- name: Change php user
+  ansible.builtin.replace:
+    path: /etc/php/8.1/fpm/pool.d/www.conf
+    regexp: 'www-data'
+    replace: "{{ USER }}"
+- name: Change php post_max_size
+  ansible.builtin.lineinfile:
+    path: /etc/php/8.1/fpm/php.ini
+    regexp: '^post_max_size'
+    line: 'post_max_size = 1G'
+- name: Change php post_max_size
+  ansible.builtin.lineinfile:
+    path: /etc/php/8.1/fpm/php.ini
+    regexp: '^upload_max_filesize'
+    line: 'upload_max_filesize = 1G'
+- name: Restart fpm
+  ansible.builtin.service:
+    name: php8.1-fpm
+    state: restarted
 - name: Enable virtual host
   ansible.builtin.file:
-    src: ../sites-available/{{ FQDN }}.conf
-    dest: /etc/nginx/sites-enabled/{{ FQDN }}.conf
+    src: ../sites-available/{{ inventory_hostname }}.conf
+    dest: /etc/nginx/sites-enabled/{{ inventory_hostname }}.conf
     state: link
     force: true
-    mode: "0660"
+    mode: "0600"
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+- name: Configure TLS
+  ansible.builtin.command:
+    cmd: sudo -u "{{ USER }}" /home/{{ USER }}/bin/renew.sh
+    creates: /home/{{ USER }}/.acme.sh/{{ inventory_hostname }}_ecc/{{ inventory_hostname }}.key
+- name: Create templ config
+  ansible.builtin.template:
+    src: virtual_host_tls.j2
+    dest: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
+    mode: "0600"
+    backup: 'True'
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
