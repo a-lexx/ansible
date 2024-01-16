@@ -9,7 +9,7 @@
   ansible.builtin.file:
     path: '/{{ item }}'
     state: directory
-    mode: 0755
+    mode: "0755"
     owner: bind
     group: bind
     recurse: true
@@ -30,7 +30,7 @@
   ansible.builtin.template:
     src: bind.options.j2
     dest: /etc/bind/named.conf.options
-    mode: 0660
+    mode: "0660"
     owner: bind
     group: bind
     backup: true
@@ -39,7 +39,7 @@
   ansible.builtin.template:
     src: bind.log.j2
     dest: /etc/bind/named.conf.log
-    mode: 0660
+    mode: "0660"
     owner: bind
     group: bind
     backup: true
@@ -56,7 +56,7 @@
     owner: bind
     group: bind
     path: '{{ item }}'
-    mode: 0755
+    mode: "0755"
     state: touch
   with_items:
     - /etc/bind
@@ -66,7 +66,7 @@
     owner: bind
     group: bind
     path: '/var/log/dns/query.log'
-    mode: 0644
+    mode: "0644"
     state: touch
   tags: dns
 - name: Create file zone
@@ -75,7 +75,7 @@
     line: "zone \"{{ FQDN }}\" { type master; file \"{{ FQDN }}.zone\"; };"
     create: true
     group: bind
-    mode: 0644
+    mode: "0644"
     backup: true
   tags: dns
 - name: Create config {{ FQDN }}
@@ -83,7 +83,7 @@
     src: dom.j2
     dest: "/var/cache/bind/{{ FQDN }}.zone"
     group: bind
-    mode: 0644
+    mode: "0644"
     backup: true
   notify:
     - Reload bind
