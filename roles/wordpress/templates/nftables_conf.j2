@@ -5,7 +5,7 @@ table inet filter {
 		ct state invalid counter drop comment "Drop invalid trafic"
 		ct state established,related counter accept comment "Accept related and established trafic"
 		# ip saddr { 1.1.1.1, 8.8.8.8 } tcp dport { 80, 443 } counter drop comment "Drop brute traffic" # Just example
-		# ip saddr { 35.204.78.102, 85.209.45.90 } tcp dport 443 counter accept comment "Developers" # Just example
+		# ip saddr { 5.4.3.2, 2.3.4.5 } tcp dport 443 counter accept comment "Developers" # Just example
 		tcp dport 22 ct state new limit rate 5/minute counter accept comment "Avoid brute force on SSH"
 		tcp dport 80 counter accept comment "Accept web http"
 		tcp dport 443 counter accept comment "Accept web https"

@@ -29,7 +29,7 @@
     dest: "/home/{{ USER }}/.screenrc"
     owner: "{{ USER }}"
     group: "{{ USER }}"
-    mode: 0644
+    mode: '0644'
 - name: Install pip docker module
   ansible.builtin.pip:
     name: docker

@@ -5,13 +5,13 @@
   ansible.builtin.file:
     path: "{{ openvpn_ovpn_dir }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Create openvpn ovpn file directory
   ansible.builtin.file:
     path: "{{ openvpn_key_dir }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Register server ca key
   ansible.builtin.slurp:
@@ -51,7 +51,7 @@
     dest: "{{ openvpn_ovpn_dir }}/{{ item.0.item }}.ovpn"
     owner: root
     group: root
-    mode: 0400
+    mode: '0400'
   with_together:
     - "{{ client_certs.results }}"
     - "{{ client_keys.results }}"
