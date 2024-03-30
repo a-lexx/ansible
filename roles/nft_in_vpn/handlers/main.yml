@@ -4,4 +4,3 @@
     pkg: iptables
     state: absent
   when: nftables is succeeded
-  ignore_errors: true
