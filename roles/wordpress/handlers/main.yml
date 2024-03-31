@@ -8,4 +8,4 @@
   ansible.builtin.service:
     name: ssh
     state: restarted
-  when: root-prohibit-password is succeeded
+  when: root_prohibit_password is succeeded

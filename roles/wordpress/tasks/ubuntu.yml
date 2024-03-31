@@ -34,7 +34,7 @@
     mode: "0644"
     regexp: '^PermitRootLogin'
     line: 'PermitRootLogin prohibit-password'
-  register: root-prohibit-password
+  register: root_prohibit_password
   notify:
     - Restart ssh
 - name: Install php packages
