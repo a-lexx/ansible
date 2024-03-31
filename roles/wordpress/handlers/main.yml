@@ -4,3 +4,8 @@
     pkg: iptables
     state: absent
   when: nftables is succeeded
+- name: Restart ssh
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+  when: root-prohibit-password is succeeded

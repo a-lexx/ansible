@@ -34,6 +34,9 @@
     mode: "0644"
     regexp: '^PermitRootLogin'
     line: 'PermitRootLogin prohibit-password'
+  register: root-prohibit-password
+  notify:
+    - Restart ssh
 - name: Install php packages
   ansible.builtin.apt:
     pkg: ['php', 'php-fpm', 'php-mysql', 'php-gd', 'php-curl', 'php-dom', 'php-imagick', 'php-mbstring', 'php-zip', 'php-intl']
