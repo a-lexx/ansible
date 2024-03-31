@@ -20,7 +20,7 @@
   ansible.builtin.template:
     src: danted.j2
     dest: /etc/danted.conf
-    mode: 0644
+    mode: '0644'
 - name: Install dante-server
   ansible.builtin.apt:
     name: dante-server
@@ -37,7 +37,7 @@
   ansible.builtin.template:
     dest: /etc/systemd/system/danted.service.d/override.conf
     src: override.j2
-    mode: 0644
+    mode: '0644'
 - name: Systemd danted service up
   ansible.builtin.systemd:
     name: danted
@@ -45,17 +45,14 @@
     state: started
     enabled: true
     masked: false
-  ignore_errors: true
 - name: Create logrotate config
   ansible.builtin.template:
     dest: /etc/logrotate.d/sockd
     src: logrotate.j2
-    mode: 0644
-  ignore_errors: true
+    mode: '0644'
 - name: Set ansible.builtin.hostname
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
-  ignore_errors: true
 - name: Disable ipv6 listen for bind9
   ansible.builtin.lineinfile:
     dest: /etc/bind/named.conf.options
@@ -74,7 +71,7 @@
   ansible.builtin.template:
     dest: /etc/resolv.conf
     src: resolv.conf.j2
-    mode: 0644
+    mode: '0644'
     backup: true
 - name: Port is {{ SOCKS_PORT }}
   ansible.builtin.debug:

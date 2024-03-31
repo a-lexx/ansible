@@ -1,10 +1,42 @@
 ---
 - name: Install packages
   ansible.builtin.apt:
-    pkg: ['curl', 'openssl', 'sudo', 'screen', 'nginx', 'nginx-full']
+    pkg: ['curl', 'openssl', 'sudo', 'screen', 'nginx', 'nginx-full', 'nftables', 'sshguard']
     state: latest
     install_recommends: false
     update_cache: 'True'
+- name: Create firewall rules
+  ansible.builtin.template:
+    src: nftables_conf.j2
+    dest: /etc/nftables.conf
+    mode: "0755"
+    backup: 'True'
+- name: Enable and start nftables
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    masked: false
+    name: nftables
+  register: nftables
+  notify:
+    - Purge iptables
+- name: Enable and start sshguard
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    masked: false
+    name: sshguard
+- name: Disable root login with password
+  ansible.builtin.lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    mode: "0644"
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin prohibit-password'
+  register: root_prohibit_password
+  notify:
+    - Restart ssh
 - name: Install php packages
   ansible.builtin.apt:
     pkg: ['php', 'php-fpm', 'php-mysql', 'php-gd', 'php-curl', 'php-dom', 'php-imagick', 'php-mbstring', 'php-zip', 'php-intl']
@@ -162,6 +194,12 @@
     dest: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
     mode: "0600"
     backup: 'True'
+- name: Create php config
+  ansible.builtin.template:
+    src: php_vhost_config.j2
+    dest: /etc/nginx/sites-available/php.conf
+    mode: "0600"
+    backup: 'True'
 - name: Change php user
   ansible.builtin.replace:
     path: /etc/php/8.1/fpm/pool.d/www.conf
@@ -181,6 +219,13 @@
   ansible.builtin.service:
     name: php8.1-fpm
     state: restarted
+- name: Enable php config
+  ansible.builtin.file:
+    src: ../sites-available/php.conf
+    dest: /etc/nginx/sites-enabled/php.conf
+    state: link
+    force: true
+    mode: "0600"
 - name: Enable virtual host
   ansible.builtin.file:
     src: ../sites-available/{{ inventory_hostname }}.conf

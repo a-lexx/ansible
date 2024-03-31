@@ -28,7 +28,7 @@
     dest: /etc/postfix/main.cf
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
   notify: Restart postfix
   tags:
     - configuration
@@ -38,7 +38,7 @@
   ansible.builtin.template:
     src: header_checks.j2
     dest: /etc/postfix/header_checks
-    mode: 0600
+    mode: '0600'
 - name: Configure aliases
   ansible.builtin.lineinfile:
     dest: /etc/aliases
@@ -46,7 +46,7 @@
     line: '{{ item.user }}: {{ item.alias }}'
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
     create: true
     state: present
   with_items: "{{ postfix_aliases }}"
@@ -61,16 +61,16 @@
   ansible.builtin.file:
     path: /etc/nginx/certs/
     state: directory
-    mode: 0750
+    mode: '0750'
 - name: Create Diffie-Helman key
   community.crypto.openssl_dhparam:
     path: /etc/nginx/certs/dhparam.pem
-    size: 2048
+    size: '2048'
 - name: Transport
   ansible.builtin.template:
     src: transport.j2
     dest: /etc/postfix/transport
-    mode: 0600
+    mode: '0600'
 - name: Postmap for transport
   ansible.builtin.command: |
     postmap /etc/postfix/transport

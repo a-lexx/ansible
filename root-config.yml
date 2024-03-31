@@ -2,6 +2,6 @@
 - name: Superuser config with upgrade system
   hosts: all
   roles:
-    - { role: upgrade-dist, tags: update }
+#    - { role: upgrade-dist, tags: update }
     - { role: root-config, tags: config }
     - { role: motd, tags: config }

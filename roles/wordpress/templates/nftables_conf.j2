@@ -1,0 +1,28 @@
+table inet filter {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iifname "lo" counter accept comment "Accept local trafic"
+		ct state invalid counter drop comment "Drop invalid trafic"
+		ct state established,related counter accept comment "Accept related and established trafic"
+		# ip saddr { 1.1.1.1, 8.8.8.8 } tcp dport { 80, 443 } counter drop comment "Drop brute traffic" # Just example
+		# ip saddr { 5.4.3.2, 2.3.4.5 } tcp dport 443 counter accept comment "Developers" # Just example
+		tcp dport 22 ct state new limit rate 5/minute counter accept comment "Avoid brute force on SSH"
+		tcp dport 80 counter accept comment "Accept web http"
+		tcp dport 443 counter accept comment "Accept web https"
+		counter
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		ct state invalid counter drop comment "Drop invalid trafic"
+		ct state established,related counter accept comment "Accept related and established trafic"
+		counter
+	}
+
+	chain output {
+		type filter hook output priority filter; policy accept;
+		ct state invalid counter drop comment "Drop invalid trafic"
+		ct state established,related counter accept comment "Accept related and established trafic"
+		counter
+	}
+}
